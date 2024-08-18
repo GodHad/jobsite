@@ -1,0 +1,11 @@
+db:
+  username: postgres
+  password: 123456
+  name: jobboard
+  host: localhost
+  port: 5432
+domain:
+  frontend: 'http://localhost:3000'
+  backend: 'http://localhost:3001'
+logging:
+  directoryPath: "/home/rich/logs/jobdashboard/"
