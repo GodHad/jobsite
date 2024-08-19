@@ -85556,7 +85556,7 @@ body {
   background: #637099;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1680px) {
   .aside-fixed .aside {
     position: fixed;
     top: 0;
@@ -87120,7 +87120,7 @@ body {
     border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   }
 }
-@media (max-width: 991.98px) {
+@media (max-width: 1680px) {
   .aside {
     z-index: 1001;
     position: fixed;

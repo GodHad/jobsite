@@ -16,6 +16,6 @@ const config = {
         }
     }
 }
-export default config[NODE_ENV]
+export default config["production"]
 
 

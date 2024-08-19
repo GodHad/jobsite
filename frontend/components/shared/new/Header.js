@@ -7,7 +7,7 @@ export function Header({ user, clientUrl }) {
     return (
         <>
             <style jsx>
-            {`
+                {`
                 .new-header {
                     background-color: #1e202d !important;
                     padding: 20px 52px;
@@ -41,6 +41,11 @@ export function Header({ user, clientUrl }) {
                     font-weight: 700;
                     font-size: 14px;
                 }
+
+                button.nav-menu {
+                    background-color: transparent;
+                    border: none;
+                }
             `}
             </style>
             <div className="new-header">
@@ -48,20 +53,20 @@ export function Header({ user, clientUrl }) {
                     <Image src="/assets/image/logo.png" width="17" height="37" alt="Logo" />
                     <p className="logo-title">AUTOFLY</p>
                 </div>
-                <div className="d-flex flex-row justify-content-center align-items-center" style={{gap: '60px'}}>
+                <div className="d-flex flex-row justify-content-center align-items-center" style={{ gap: '60px' }}>
                     <div className="all-jobs-btn d-flex flex-column justify-content-center align-items-center">
                         <div className="ml-10">
                             <Image src="/assets/image/all-jobs.png" width="50" height="45" alt="all jobs" />
                         </div>
-                        <Link href={"#"}>כל המשרות</Link>             
+                        <Link href={"#"}>כל המשרות</Link>
                     </div>
-                    <div className="nav-menu">
+                    <button className="nav-menu" onClick={e => { document.querySelector("#kt_aside").classList.toggle("aside-on") }}>
                         <svg width="47px" height="47px" viewBox="0 0 20.00 20.00" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" strokeWidth="2">
-                        <g id="SVGRepo_bgCarrier" strokeWidth="0"/>
-                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
-                        <g id="SVGRepo_iconCarrier"> <path fill="#000000" fillRule="evenodd" d="M19 4a1 1 0 01-1 1H2a1 1 0 010-2h16a1 1 0 011 1zm0 6a1 1 0 01-1 1H2a1 1 0 110-2h16a1 1 0 011 1zm-1 7a1 1 0 100-2H2a1 1 0 100 2h16z"/> </g>
+                            <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+                            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+                            <g id="SVGRepo_iconCarrier"> <path fill="#000000" fillRule="evenodd" d="M19 4a1 1 0 01-1 1H2a1 1 0 010-2h16a1 1 0 011 1zm0 6a1 1 0 01-1 1H2a1 1 0 110-2h16a1 1 0 011 1zm-1 7a1 1 0 100-2H2a1 1 0 100 2h16z" /> </g>
                         </svg>
-                    </div>
+                    </button>
                 </div>
             </div>
         </>
