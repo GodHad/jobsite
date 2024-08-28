@@ -17,23 +17,24 @@ const AppComponent = ({ Component, pageProps }) => {
     const router = useRouter()
     const { query } = router;
     const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const jssStyles = document.querySelector('#jss-server-side');
         if (jssStyles) jssStyles.parentElement.removeChild(jssStyles);
     }, []);
-    // async function userChecks() {
 
-    //     const userData = await GetUser("/");
-    //     if (router.pathname !== '/sign-in' && router.pathname !== '/jobs' && !userData && !router.pathname.includes('jobs/')) return router.push("/jobs")
-    //     setUser(userData)
-    // }
+    async function userChecks() {
 
+        const userData = await GetUser("/");
+        if (router.pathname !== '/sign-in' && router.pathname !== '/jobs' && !userData && !router.pathname.includes('jobs/')) return router.push("/jobs")
+        setUser(userData)
+        setLoading(false)
+    }
 
-    // useEffect(() => {
-    //     userChecks()
-    // }, [])
-
+    useEffect(() => {
+        userChecks()
+    }, [])
 
     return (
         <Provider store={store}>
@@ -42,9 +43,10 @@ const AppComponent = ({ Component, pageProps }) => {
                 <div>
                     <Component
                         {...pageProps}
-                        // user={user} 
+                        user={user} 
+                        loading={loading}
                         serverUrl={serverUrl} query={router.query}
-                        // userChecks={userChecks}
+                        userChecks={userChecks}
                         router={router} pageTitle={"Job Board"} clientUrl={clientUrl} />
                 </div>
             </ThemeProvider>

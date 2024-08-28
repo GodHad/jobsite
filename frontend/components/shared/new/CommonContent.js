@@ -12,7 +12,7 @@ export function CommonContent () {
 
                     .common-content .description {
                         padding: 74px;
-                        box-shadow: 0 0 20px 50px rgba(255, 255, 255, 0.15);
+                        box-shadow: 0 0 20px 0px rgba(255, 255, 255, 0.15);
                         background-color: rgba(255, 255, 255, .15);
                         backdrop-filter: blur(10px);
                         position: absolute;
@@ -37,7 +37,8 @@ export function CommonContent () {
                 `}
             </style>
             <div className="common-content">
-                <Image src={'/assets/image/homepage - gettyimages 1.png'} width={1680} height={785} />
+                <Image src={'/assets/image/1680x785.png'} width={1680} height={785} layout="responsive" />
+                {/* <Image src={'/assets/image/homepage - gettyimages 1.png'} width={1680} height={785} layout="responsive" /> */}
                 <div className="description d-flex flex-row">
                     <Item icon={'chart'} number={"1300+"} title={"Jobs Posted"} />
                     <Item icon={'bag'} number={"3k+"} title={"Companies"} />

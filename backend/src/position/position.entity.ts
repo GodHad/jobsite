@@ -14,7 +14,8 @@ import { IsBoolean, IsEmail, IsNumber, IsNumberString, IsOptional, validateOrRej
 import * as moment from "moment"
 import { CompanyIndustryEnum } from "./enum/company-industry.enum";
 import { JobLocationEnum } from "./job-location.enum";
-
+import { JobApplication } from 'src/application/job-application.entity';
+import { SavedPosition } from 'src/saved-position/saved-position.entity';
 
 @Entity()
 export class Position extends BaseEntity{
@@ -79,5 +80,9 @@ export class Position extends BaseEntity{
     // this.updatedAt = moment(this.updatedAt).tz("Asia/Jerusalem").format('YYYY-MM-DD HH:mm:ss') as unknown as Date;
   }
 
+  @OneToMany(() => JobApplication, jobApplication => jobApplication.position)
+  jobApplications: JobApplication[];
 
+  @OneToMany(() => SavedPosition, savedPosition => savedPosition.position)
+  savedPositions: SavedPosition[];
 }

@@ -18,16 +18,18 @@ export class User extends BaseEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({nullable: false, unique:true})
+  @Column({nullable: true, unique:true})
   @IsEmail()
   email:string;
-  @Column()
+  @Column({nullable: true})
+  password:string;
+  @Column({nullable: true})
   linkedinId:string;
-  @Column({nullable:true})
+  @Column({nullable: false})
   firstname:string;
-  @Column({nullable:true})
+  @Column({nullable: true})
   lastname:string;
-  @Column()
+  @Column({nullable: true})
   linkedinPhotoUrl: string;
   @Column({nullable: true})
   linkedinProfileUrl: string;
@@ -40,10 +42,12 @@ export class User extends BaseEntity{
   linkedinProfile: string;
   @Column({nullable: true})
   website: string;
-
-
-
-
+  @Column({nullable: true})
+  phoneNumber: string;
+  @Column({nullable: true})
+  address: string;
+  @Column({nullable: true})
+  phoneCountryPrefix: string;
 
   @CreateDateColumn()
   createdAt: Date;

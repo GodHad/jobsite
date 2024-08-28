@@ -7,8 +7,9 @@ import { Requests } from '../CustomHooks/Requests';
 import { NotifyComponent } from './Notify';
 import { useState } from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
+import Link from 'next/link'
 
-export default function ProjectItem({ project, serverUrl }) {
+export default function ProjectItem({ project, serverUrl, user }) {
 
     const [position, setPosition] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -27,17 +28,41 @@ export default function ProjectItem({ project, serverUrl }) {
             NotifyComponent("failure", error.message)
         }
     }
+
+    async function handleSubmit() {
+        try {
+            const {firstname, lastname, email, coverLetter, linkedinProfileUrl, website} = user;
+            const data = { firstname: firstname, lastname: lastname, email: email, coverLetter: coverLetter, linkedinProfile: linkedinProfileUrl, website: website };
+            await Requests("post", serverUrl + "/position/" + project.id + "/application", {}, data);
+            NotifyComponent("success", "You submitted this project successfully! Please wait for a while we are submitting.");
+        } catch (error) {
+            NotifyComponent("failure", error.message)
+        }
+
+    }
     return (
         <>
             <style jsx>{`
                 .project-item {
+                    font-family: 'Inter', 'Noto Sans Hebrew', 'Alef', sans-serif;
                     margin: 0 53px 28px;
                     background: #fff;
                     border-radius: 16px;
                     padding: 16px 16px 23px 28px;
                     flex-direction: row;
                 }
-                
+
+                .project-item.selected {
+                    box-shadow: 13px 4px 10px 0px rgba(0, 0, 0, 0.25);
+                }
+                    
+                @media (max-width: 1000px) {
+                    .project-item.selected {
+                        box-shadow: 7px 4px 5px 0px rgba(0, 0, 0, 0.25);
+                    }
+                }
+
+
                 @media (max-width: 850px) {
                     .project-item {
                         margin: 0 10px 28px;
@@ -86,7 +111,6 @@ export default function ProjectItem({ project, serverUrl }) {
                     }
                 }
                 .location span {
-                    font-family: 'Inter';
                     font-weight: 400;
                     font-size: 12px;
                     color: #5f5f5f;
@@ -104,6 +128,7 @@ export default function ProjectItem({ project, serverUrl }) {
                     line-height: 20px;
                     color: #1E202D;
                     position: relative;
+                    cursor: pointer;
                 }
                 
                 @media (max-width: 1000px) {
@@ -149,7 +174,6 @@ export default function ProjectItem({ project, serverUrl }) {
                 }
 
                 .job-details {
-                    font-family: 'Inter';
                     margin-top: 49px;
                 }
 
@@ -159,9 +183,28 @@ export default function ProjectItem({ project, serverUrl }) {
                     }   
                 }
 
+                .main-job-content {
+                    width: 50%;
+                }
+
+                .main-job-content .job-details {
+                    width: 70%;
+                }
+
+                @media (max-width: 670px) {
+                    .main-job-content .job-details {
+                        width: 50%;
+                    }
+                }
+
+                .main-job-content .job-details .project-title {
+                    width: 100%
+                }
+
                 @media (max-width: 1000px) {
                     .main-job-content {
                         margin-top: 10px;
+                        width: 100%
                     }
                 }
 
@@ -179,13 +222,14 @@ export default function ProjectItem({ project, serverUrl }) {
                     cursor: pointer;
                 }
                 
+
+
                 .job-details .title-time-icon .project-title h2 {
                     font-weight: 600;
                     font-size: 18px;
                     line-height: 21px;
                     color: #000;
-                    width: 197px;
-                    font-family: 'Inter';
+                    width: 100%;
                     margin: 0;
                 }
 
@@ -215,7 +259,7 @@ export default function ProjectItem({ project, serverUrl }) {
 
                 @media (max-width: 500px) {
                     .job-details .title-time-icon .project-title h2 {
-                        width: 200px;
+                        width: 150px;
                     }
                 }
 
@@ -231,7 +275,6 @@ export default function ProjectItem({ project, serverUrl }) {
                     color: #5f5f5f;
                     margin: 0;
                     margin-right: 21px;
-                    font-family: 'Inter';
                     width: 80px;
                 }
 
@@ -250,13 +293,11 @@ export default function ProjectItem({ project, serverUrl }) {
                     
                 .working-number-type .working-number p {
                     margin: 0;
-                    font-family: 'Inter';
                     color: #37d002;
                 }
 
                 p.type {
                     color: #31c5f3;
-                    font-family: 'Inter';
                     margin: 0;
                 }
 
@@ -272,8 +313,17 @@ export default function ProjectItem({ project, serverUrl }) {
                     }
                 }
 
-                .location div {
+                .location > div {
                     gap: 5px;
+                }
+
+                .location > div > *:first-child {
+                    width: 100px;
+                }
+
+                .location .icon-wrapper {
+                    width: 60px;
+                    text-align: center;
                 }
                 
                 .job-description {
@@ -296,7 +346,6 @@ export default function ProjectItem({ project, serverUrl }) {
                     font-size: 18px;
                     line-height: 22px;
                     color: #1e202d;
-                    font-family: 'Inter', sans-serif;
                     text-align: right;
                     padding: 20px 37px;
                     display: flex;
@@ -313,7 +362,6 @@ export default function ProjectItem({ project, serverUrl }) {
                     font-weight: 400;
                     font-size: 14px;
                     line-height: 22px;
-                    font-family: 'Inter';
                     color: #555555;
                 }
 
@@ -346,25 +394,25 @@ export default function ProjectItem({ project, serverUrl }) {
                 }
 
                 .loader-container {
-                    height: 30px;
+                    height: 50px;
                     width: 100%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                 }
             `}</style>
-            <div className="project-item d-flex justify-content-between">
+            <div className={`project-item d-flex justify-content-between ${position ? 'selected' : ''}`}>
                 <div className="common-buttons d-flex justify-content-between">
                     <div className='functional-buttons d-flex'>
-                        <a href='#'><ShareOutlinedIcon fontSize='small' color='disabled' /></a>
-                        <a href='#'><FavoriteBorderOutlinedIcon fontSize='small' color='disabled' /></a>
+                        <a><ShareOutlinedIcon fontSize='small' color='disabled' /></a>
+                        <a><FavoriteBorderOutlinedIcon fontSize='small' color='disabled' /></a>
                     </div>
                     <div className='submit-buttons'>
-                        <a href={project.jobExternalUrl} className='d-flex flex-row align-items-center justify-content-center'>
+                        <a href={project.jobExternalUrl} target='__blank' className='d-flex flex-row align-items-center justify-content-center'>
                             <Image src={"/assets/image/launch.png"} width={14} height={14} />
                             <span className='btn-content'>הגש/י מועמדות</span>
                         </a>
-                        <a className='d-flex flex-row align-items-center justify-content-center'>
+                        <a className='d-flex flex-row align-items-center justify-content-center' onClick={handleSubmit}>
                             <span className='btn-content'>הגש/י בקליק</span>
                             <span className='badge'>פרמיום</span>
                         </a>
@@ -393,24 +441,30 @@ export default function ProjectItem({ project, serverUrl }) {
                     <div className='location d-flex flex-column justify-content-between'>
                         <div className='d-flex flex-row justify-content-between align-items-center'>
                             <span>{project.jobLocation}</span>
-                            <div>
+                            <div className='icon-wrapper'>
                                 <RoomIcon fontSize='small' color='disabled' />
                             </div>
                         </div>
                         <div className='d-flex flex-row justify-content-between align-items-center'>
                             <p className='from-now'>{moment(project.createdAt).fromNow()}</p>
-                            <Image src={"/assets/image/Apple_logo_black.svg.png"} width={60} height={64} />
+                            {
+                                project.companyImageUrl
+                                    ?
+                                    <Image src={project.companyImageUrl} width={60} height={64} />
+                                    :
+                                    <Image src={"/assets/image/Apple_logo_black.svg.png"} width={60} height={64} />
+                            }
                         </div>
                         <div className='d-flex flex-row justify-content-between align-items-center gap-'>
                             <p className='type'>{project.companyIndustry}</p>
-                            <div>
+                            <div className='icon-wrapper'>
                                 <Image src={"/assets/image/desktop-icon.png"} width={20} height={14} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {loading && 
+            {loading &&
                 <div className={"loader-div"}>
                     <div className={"loader-container"}>
                         <ClipLoader />

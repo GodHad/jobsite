@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 export class GetPositionsFilterDto {
   jobTitle?: string;
   publishDate?: string;
-  companySize?: string;
+  companySize?: number;
   jobLocation?: string;
   companyIndustry?: string;
   @IsOptional()

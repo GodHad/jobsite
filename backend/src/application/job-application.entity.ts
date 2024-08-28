@@ -8,10 +8,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Generated,
-  BeforeInsert, ValueTransformer, BeforeUpdate, AfterLoad
+  BeforeInsert, ValueTransformer, BeforeUpdate, AfterLoad,
+  ManyToOne
 } from "typeorm";
 import { validateOrReject } from "class-validator";
 import * as moment from "moment";
+import { Position } from "src/position/position.entity";
 
 
 @Entity()
@@ -38,7 +40,8 @@ export class JobApplication extends BaseEntity{
   linkedinProfile: string;
   @Column({nullable: true})
   website: string;
-
+  @Column({nullable: false, default: true})
+  processing: boolean;
 
 
   @CreateDateColumn()
@@ -62,5 +65,6 @@ export class JobApplication extends BaseEntity{
     // this.updatedAt = moment(this.updatedAt).format('YYYY-MM-DD HH:mm:ss') as unknown as Date;
   }
 
-
+  @ManyToOne(() => Position, position => position.jobApplications)
+  position: Position;
 }

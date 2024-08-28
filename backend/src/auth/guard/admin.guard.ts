@@ -11,9 +11,10 @@ export class AdminGuard implements CanActivate {
 
 
     const adminLinkedinIds = process.env.ADMIN_LINKEDIN_IDS.split(',')
-
-
-    return adminLinkedinIds.includes(user.linkedinId);
+    const adminEmails = process.env.ADMIN_EMAILS.split(',')
+    
+    console.log(user)
+    return adminEmails.includes(user.email) || adminLinkedinIds.includes(user.linkedinId);
   }
 
 }

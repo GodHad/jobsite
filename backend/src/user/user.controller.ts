@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Put,
+  Post,
   Query, Res, UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,10 +20,11 @@ import { AdminGuard } from "../auth/guard/admin.guard";
 import { UserFilterDto } from "./dto/user-filter.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import { User } from './user.entity';
 
 @Controller('/')
-@UseGuards(AuthGuard('jwt'))
-@UsePipes(new ValidationPipe({transform: true}))
+// @UseGuards(AuthGuard('jwt'))
+@UsePipes(new ValidationPipe({ transform: true }))
 export class UserController {
   constructor(
     private userService: UserService,
@@ -30,32 +32,39 @@ export class UserController {
   }
 
   @Get('/user')
+  @UseGuards(AuthGuard('jwt'))
   async getAuthUser(@GetUser() user) {
     return await this.userService.getAuthUser(user)
   }
 
+  @Post('/user')
+  async createUser(@Body() body: { username: string; password: string; email: string, phoneNumber: string }): Promise<User> {
+    return this.userService.createUser(body.username, '', body.email, body.password, body.phoneNumber)
+  }
+
   @Put('/user')
-  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'), AdminGuard)
   @UseInterceptors(FileInterceptor('file'))
   async updateAuthUser(@GetUser() user, @Body() updateAuthUserDto: UpdateAuthUserDto, @UploadedFile() file: Express.Multer.File) {
     return await this.userService.updateAuthUser(user, updateAuthUserDto, file)
   }
 
   @Get('/user/cv')
-  @UseGuards(AdminGuard)
-  async downloadAuthUserCV(@GetUser() user, @Param("jobApplicationId") jobApplicationId, @Res() res: Response){
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  async downloadAuthUserCV(@GetUser() user, @Param("jobApplicationId") jobApplicationId, @Res() res: Response) {
     return await this.userService.downloadAuthUserCV(res, user)
   }
 
   @Get('/system/users')
-  @UseGuards(AdminGuard)
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   async adminGetAllUsers(@GetUser() user, @Query() getUserFilterDto: UserFilterDto) {
     return await this.userService.adminGetAllUsers(user, getUserFilterDto)
   }
 
 
   @Delete('/system/user/:id')
-  @UseGuards(AdminGuard)
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   async adminDeleteUserById(@GetUser() user, @Param('id') userId) {
     return await this.userService.adminDeleteUserById(user, userId)
   }

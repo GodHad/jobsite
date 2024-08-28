@@ -1,15 +1,15 @@
-import {Layout} from "../../components/shared/menu/Layout";
-import DataTable, {createTheme} from 'react-data-table-component';
-import {useEffect, useState} from "react";
-import {getFormInputValues} from "../../components/get-named-inputs-values";
-import {Requests} from "../../components/CustomHooks/Requests";
-import {NotifyComponent} from "../../components/shared/Notify";
+import { Layout } from "../../components/shared/menu/Layout";
+import DataTable, { createTheme } from 'react-data-table-component';
+import { useEffect, useState } from "react";
+import { getFormInputValues } from "../../components/get-named-inputs-values";
+import { Requests } from "../../components/CustomHooks/Requests";
+import { NotifyComponent } from "../../components/shared/Notify";
 import config from "../../config/default.js"
 import * as moment from "moment"
 
 const serverUrl = config.domain.server
 import Link from "next/link"
-import {DisplayRichText} from "../../components/pages/admin/DisplayRichText";
+import { DisplayRichText } from "../../components/pages/admin/DisplayRichText";
 import Head from "next/head";
 
 createTheme('solarized', {
@@ -34,7 +34,7 @@ createTheme('solarized', {
     },
 });
 
-export default function AdminUserIndexList({user, router, pageTitle}) {
+export default function AdminUserIndexList({ user, router, pageTitle }) {
     const [users, setUsers] = useState(null)
     const [jobApplications, setJobApplications] = useState(null)
     const [positions, setPositions] = useState({
@@ -58,7 +58,7 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
     async function getJobApplications() {
         try {
             const url = `${serverUrl}/system/job-application`
-            const {data} = await Requests('get', url)
+            const { data } = await Requests('get', url)
             setJobApplications(data)
 
         } catch (error) {
@@ -78,25 +78,25 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
 
     async function getAllPositions(url = `${serverUrl}/system/positions?sortBy=id&sortDirection=DESC&page_size=${positions._metadata.page_size}&page=${positions._metadata.page}`) {
         try {
-            const {data, _metadata} = await Requests('get', url)
+            const { data, _metadata } = await Requests('get', url)
 
-            setPositions({data, _metadata})
+            setPositions({ data, _metadata })
 
         } catch (error) {
             NotifyComponent('failure', error.message)
         }
     }
 
-    async function paginate({page = positions._metadata.page, page_size = positions._metadata.page_size}) {
+    async function paginate({ page = positions._metadata.page, page_size = positions._metadata.page_size }) {
         getAllPositions(`${serverUrl}/system/positions?sortBy=createdAt&sortDirection=DESC&page_size=${page_size}&page=${page}`)
     }
 
-    async function onSort({name}, direction) {
+    async function onSort({ name }, direction) {
         const url = `${serverUrl}/system/users?sortBy=${name}&sortDirection=${direction.toUpperCase()}`
         getAllUsers(url)
     }
 
-    async function onPositionsSort({name}, direction) {
+    async function onPositionsSort({ name }, direction) {
         const url = `${serverUrl}/system/positions?&page_size=${positions._metadata.page_size}&page=${positions._metadata.page}&sortBy=${name}&sortDirection=${direction.toUpperCase()}`
         getAllPositions(url)
     }
@@ -261,8 +261,43 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
         },
     ];
 
+    const processingJobApplicationsColumns = [
+        {
+            name: 'id',
+            selector: (row) => row.id,
+            sortable: true,
+        },
+        {
+            name: 'userId',
+            selector: (row) => row.userId,
+            sortable: true,
+        },
+        {
+            name: 'fullName',
+            selector: (row) => <span>{row.firstname} {row.lastname}</span>,
+            sortable: true,
+        },
 
-    if (!user || !users || !positions.data || !jobApplications) return <Layout loading={true}/>
+        {
+            name: 'email',
+            selector: (row) => <span>{row.email}</span>,
+            sortable: true,
+        },
+
+        {
+            name: 'positionLink',
+            selector: (row) => (<Link href={`/jobs/${row.positionId}`}><a>View Position Applied</a></Link>),
+            sortable: true,
+        },
+        {
+            name: 'Date Initiated',
+            selector: (row) => moment(row.createdAt).local().format('YYYY-MM-DD HH:mm:ss'),
+            sortable: true,
+        },
+    ];
+
+
+    if (!user || !users || !positions.data || !jobApplications) return <Layout loading={true} />
 
     return (
         <>
@@ -293,15 +328,15 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
                                 <>
                                     {pendingUserDelete !== 'user-' + props.data.id ?
                                         <a href={"#"} className={"btn btn-warning w-120px border mb-3 mt-3 "}
-                                           onClick={e => {
-                                               e.preventDefault()
-                                               setPendingUserDelete('user-' + props.data.id)
-                                           }}>Delete</a> :
+                                            onClick={e => {
+                                                e.preventDefault()
+                                                setPendingUserDelete('user-' + props.data.id)
+                                            }}>Delete</a> :
                                         <></>}
 
                                     {pendingUserDelete === 'user-' + props.data.id ?
                                         <a href={"#"} className={"btn btn-danger w-120px border mb-3 mt-3 "}
-                                           onClick={deleteUser.bind(this, props.data.id)}>Confirm Delete</a> : <></>
+                                            onClick={deleteUser.bind(this, props.data.id)}>Confirm Delete</a> : <></>
                                     }
 
                                 </>
@@ -319,10 +354,10 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
 
                 <div className={"d-inline-block"}>
                     <input type="file"
-                           id="csv-select" name="avatar"
-                           accept=".csv" className={"d-none"} onChange={uploadFile}/>
+                        id="csv-select" name="avatar"
+                        accept=".csv" className={"d-none"} onChange={uploadFile} />
                     <a className={"btn btn-sm btn-white border mb-3 "}
-                       onClick={ev => document.querySelector("#csv-select").click()}>Bulk Import Positions (CSV)</a>
+                        onClick={ev => document.querySelector("#csv-select").click()}>Bulk Import Positions (CSV)</a>
                 </div>
 
                 <div className="card rounded-sm">
@@ -341,8 +376,8 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
                             paginationTotalRows={positions._metadata.total_count}
                             sortServer={true}
                             paginationServer={true}
-                            onChangePage={e => paginate({page: e})}
-                            onChangeRowsPerPage={e => paginate({page_size: e})}
+                            onChangePage={e => paginate({ page: e })}
+                            onChangeRowsPerPage={e => paginate({ page_size: e })}
                             pagination={true}
                             dense={true}
                             expandableRows={true}
@@ -362,21 +397,21 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
 
                                     {pendingDelete !== 'position-' + props.data.id ?
                                         <a href={"#"} className={"btn btn-warning w-120px border mb-3 mt-3 "}
-                                           onClick={e => {
-                                               e.preventDefault()
-                                               setPendingDelete('position-' + props.data.id)
-                                           }}>Delete</a> :
+                                            onClick={e => {
+                                                e.preventDefault()
+                                                setPendingDelete('position-' + props.data.id)
+                                            }}>Delete</a> :
                                         <></>}
 
                                     {pendingDelete === 'position-' + props.data.id ?
                                         <a href={"#"} className={"btn btn-danger w-120px border mb-3 mt-3 "}
-                                           onClick={deletePosition.bind(this, props.data.id)}>Confirm Delete</a> : <></>
+                                            onClick={deletePosition.bind(this, props.data.id)}>Confirm Delete</a> : <></>
                                     }
 
 
                                     <h4 className={"text-info"}>Job Description</h4>
-                                    <DisplayRichText html={props.data.jobDescription}/>
-                                    <br/>
+                                    <DisplayRichText html={props.data.jobDescription} />
+                                    <br />
                                     <h4 className={"text-info"}>Company About</h4>
                                     <p>{props.data.companyAbout}</p>
                                 </>
@@ -391,10 +426,10 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
 
                     <div className="card-body">
                         <DataTable
-                            title="Job Applications"
+                            title="Job Applications(Applied)"
                             columns={jobApplicationsColumns}
                             // theme="solarized"
-                            data={jobApplications}
+                            data={jobApplications.filter(application => !application.processing)}
                             striped={true}
                             highlightOnHover={true}
                             className={"custom-datatable"}
@@ -427,7 +462,7 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
 
                                     <p className={"font-weight-bold m-0"}>Cover Letter</p>
                                     <textarea className={"form-control mb-2"}
-                                              readOnly={true}>{props.data.coverLetter}</textarea>
+                                        readOnly={true} defaultValue={props.data.coverLetter} />
 
 
                                     <Link href={"/jobs/" + props.data.positionId}>
@@ -436,7 +471,7 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
 
 
                                     <a href={`${serverUrl}/system/job-application/${props.data.id}`} target={"_blank"}
-                                       rel={"noopener nofollow noreferrer"} className={"btn btn-info mb-6"}>Download
+                                        rel={"noopener nofollow noreferrer"} className={"btn btn-info mb-6"}>Download
                                         CV</a>
 
                                 </>
@@ -445,7 +480,72 @@ export default function AdminUserIndexList({user, router, pageTitle}) {
                     </div>
                 </div>
 
+                <div className="card rounded-sm mt-3">
+                    <div className="card-body">
+                        <DataTable
+                            title="Job Applications(Processing)"
+                            columns={processingJobApplicationsColumns}
+                            // theme="solarized"
+                            data={jobApplications.filter(application => application.processing)}
+                            striped={true}
+                            highlightOnHover={true}
+                            className={"custom-datatable"}
+                            pagination={true}
+                            dense={true}
+                            expandableRows={true}
+                            expandOnRowClicked={true}
+                            expandableRowsComponent={(props) => (
+                                <>
+                                    <h5>Application details</h5>
 
+
+                                    <p className={"font-weight-bold m-0"}>Name</p>
+                                    <p>{props.data.firstname} {props.data.lastname}</p>
+
+                                    <p className={"font-weight-bold m-0"}>Linkedin Profile Url</p>
+                                    <p>{props.data.linkedinProfile}</p>
+
+                                    <p className={"font-weight-bold m-0"}>Email</p>
+                                    <p>{props.data.email}</p>
+
+                                    {/*<p className={"font-weight-bold m-0"}>Phone Number</p>*/}
+                                    {/*<p>{props.data.phone}</p>*/}
+
+                                    <p className={"font-weight-bold m-0"}>CV Filename</p>
+                                    <p>{props.data.resumeFileName}</p>
+
+                                    <p className={"font-weight-bold m-0"}>Website</p>
+                                    <p>{props.data.website}</p>
+
+                                    <p className={"font-weight-bold m-0"}>Cover Letter</p>
+                                    <textarea className={"form-control mb-2"}
+                                        readOnly={true} defaultValue={props.data.coverLetter} />
+
+
+                                    <Link href={"/jobs/" + props.data.positionId}>
+                                        <a className={"btn btn-info mb-6 mr-2 mb-2"}>View Position</a>
+                                    </Link>
+
+
+                                    <a href={`${serverUrl}/system/job-application/${props.data.id}`} target={"_blank"}
+                                        rel={"noopener nofollow noreferrer"} className={"btn btn-info mb-6 mr-2"}>Download
+                                        CV</a>
+
+                                    <a className={"btn btn-info mb-6"} onClick={async () => {
+                                        try {
+                                            await Requests('get', `${serverUrl}/system/job-application-processed/${props.data.id}`);
+                                            setJobApplications(jobApplications.map(application => application.id === props.data.id ? { ...application, processing: false } : application))
+                                            NotifyComponent('success', 'Success!')
+                                        } catch (error) {
+                                            NotifyComponent('failure', error.message)
+                                        }
+                                    }}>Process Application</a>
+
+                                </>
+                            )}
+                        />
+                    </div>
+                </div>
             </Layout>
         </>
     )

@@ -9,30 +9,27 @@ import Image from "next/image";
 import Link from 'next/link';
 import { Requests } from "../components/CustomHooks/Requests.js";
 import { NotifyComponent } from "../components/shared/Notify.js";
-import { signIn } from 'next-auth/client';
 
-const domain = process.env.AUTH0_BASE_URL;
-const clientId = process.env.AUTH0_CLIENT_ID;
-
-function SignIn({ query, router, pageTitle, user, serverUrl, userChecks }) {
+function SignUp({ query, router, pageTitle, user, serverUrl }) {
     useEffect(() => {
         if (query.next) Cookie.set("next", query.next)
         else Cookie.remove("next")
     }, [])
 
-    const handleLoginUser = async (e) => {
+    const handleCreatUser = async (e) => {
         try {
             e.preventDefault();
             const formData = new FormData(e.target);
             const userData = {
+                username: formData.get('full'),
+                phoneNumber: formData.get('phoneNumber'),
                 email: formData.get('email'),
                 password: formData.get('password'),
             }
-            const url = `${serverUrl}/auth/signin`
-            const { redirectUrl } = await Requests('post', url, {}, userData)
-            userChecks()
-            router.push(redirectUrl)
-            NotifyComponent('success', "Success to login")
+            const url = `${serverUrl}/user`
+            const data = await Requests('post', url, {}, userData)
+            NotifyComponent('success', "Success")
+            router.push('/sign-in')
         } catch (error) {
             NotifyComponent('failure', error.message)
         }
@@ -41,7 +38,7 @@ function SignIn({ query, router, pageTitle, user, serverUrl, userChecks }) {
     return (
         <>
             <Head>
-                <title>{pageTitle} - Sign In</title>
+                <title>{pageTitle} - Sign Up</title>
             </Head>
             <Layout loading={false} router={router} user={user}>
                 <style jsx>{`
@@ -125,7 +122,6 @@ function SignIn({ query, router, pageTitle, user, serverUrl, userChecks }) {
                         background-color: white;
                         padding: 8px 40px;
                         border-radius: 5px;
-                        cursor: pointer;
                     }
                         
                     .third-party-login a span {
@@ -209,16 +205,18 @@ function SignIn({ query, router, pageTitle, user, serverUrl, userChecks }) {
                                 <div className="sign-in-title-line"></div>
                             </div>
                             <div className="third-party-login">
-                                <Link href={serverUrl + "/auth/google"}><a><Image src="/assets/image/google-icon.png" width={14} height={14} /><span>Google Account</span></a></Link>
+                            <Link href={serverUrl + "/auth/google"}><a><Image src="/assets/image/google-icon.png" width={14} height={14} /><span>Google Account</span></a></Link>
                                 <Link href={serverUrl + "/auth/linkedin"}><a><Image src="/assets/image/linkedin-icon.png" width={14} height={14} /><span>LinkedIn Account</span></a></Link>
                             </div>
                             <h3>OR</h3>
-                            <form onSubmit={handleLoginUser}>
+                            <form onSubmit={handleCreatUser}>
+                                <CustomInput label={"שם"} defaultValue={''} name={'full'} placeholder={"Enter your full name"} />
+                                <CustomInput label={"מספר נייד"} defaultValue={''} name={'phoneNumber'} placeholder={"Enter your phone number(e.g. +972524001234)"} />
                                 <CustomInput label={"אימייל"} defaultValue={''} name={'email'} placeholder={"Please enter your email address"} />
                                 <CustomInput label={"סיסמא"} defaultValue={''} name={'password'} placeholder={"Please enter your password"} type={"password"} />
-                                <button type="submit">היכנס</button>
+                                <button type="submit">הרשמה</button>
                             </form>
-                            <p className="to-profile">אין לך חשבון?<Link href="/sign-up"><a>כנס/י</a></Link></p>
+                            <p className="to-profile">יש לך כבר חשבון? <Link href="/sign-in"><a>כנס/י</a></Link></p>
                         </div>
                     </div>
                 </div>
@@ -227,7 +225,7 @@ function SignIn({ query, router, pageTitle, user, serverUrl, userChecks }) {
     )
 }
 
-export default SignIn;
+export default SignUp;
 
 function CustomInput({ label, defaultValue, name, placeholder, type="text" }) {
     return (

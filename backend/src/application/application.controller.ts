@@ -50,4 +50,9 @@ export class ApplicationController {
   async adminDownloadCV(@GetUser() user, @Param("jobApplicationId") jobApplicationId, @Res() res: Response){
     return await this.applicationService.adminDownloadCV(res, jobApplicationId)
   }
+  @Get('/system/job-application-processed/:jobApplicationId')
+  @UseGuards(AdminGuard)
+  async adminProcessedJobApplication(@GetUser() user, @Param("jobApplicationId") jobApplicationId, @Res() res: Response) {
+    return await this.applicationService.adminProcessedJobApplication(res, jobApplicationId)
+  }
 }

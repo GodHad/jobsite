@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, MinLength } from 'class-validator';
+import { IsPhoneNumber, IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, MinLength } from 'class-validator';
 import { IsValidLinkedinProfileUrl } from "../decorator/is-valid-linkedin.decorator";
 
 export class UpdateAuthUserDto {
@@ -24,4 +24,14 @@ export class UpdateAuthUserDto {
   @IsUrl()
   website: string;
 
+  @IsString()
+  @MinLength(1)
+  address: string;
+
+  @IsString()
+  @MinLength(2)
+  phoneCountryPrefix: string;
+
+  @IsString()
+  phoneNumber: string;
 }

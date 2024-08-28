@@ -1,11 +1,11 @@
 import Link from "next/link"
-import {Requests} from "../../CustomHooks/Requests";
-import {NotifyComponent} from "../Notify";
+import { Requests } from "../../CustomHooks/Requests";
+import { NotifyComponent } from "../Notify";
 import config from "../../../config/default.js"
 
 const serverUrl = config.domain.server
 
-export function SideMenu({user, router, clientUrl}) {
+export function SideMenu({ user, router, clientUrl }) {
 
     async function logout(event) {
         event.preventDefault();
@@ -33,16 +33,16 @@ export function SideMenu({user, router, clientUrl}) {
                 </div>
                 <div className="aside-menu-wrapper flex-column-fluid" id="kt_aside_menu_wrapper">
                     <div id="kt_aside_menu" className="aside-menu my-4" data-menu-vertical="1" data-menu-scroll="1"
-                         data-menu-dropdown-timeout="500">
+                        data-menu-dropdown-timeout="500">
                         <ul className="menu-nav">
                             <li className={"menu-item "} aria-haspopup="true">
 
                                 <Link href={"/jobs"}>
                                     <a className="menu-link" href={"#"}
-                                       onClick={e => {
-                                           router.push('/jobs');
-                                           document.querySelector('#kt_aside').classList.remove('aside-on')
-                                       }}>
+                                        onClick={e => {
+                                            router.push('/jobs');
+                                            document.querySelector('#kt_aside').classList.remove('aside-on')
+                                        }}>
                                         <i className="menu-icon fas fa-home"></i>
                                         <span className="menu-text">Home</span>
                                     </a>
@@ -56,10 +56,10 @@ export function SideMenu({user, router, clientUrl}) {
                                         <li className="menu-item profile" aria-haspopup="true">
                                             {/*<Link href={"/admin"}>*/}
                                             <a className="menu-link" href={"#"}
-                                               onClick={e => {
-                                                   router.push('/admin');
-                                                   document.querySelector('#kt_aside').classList.remove('aside-on')
-                                               }}>
+                                                onClick={e => {
+                                                    router.push('/admin');
+                                                    document.querySelector('#kt_aside').classList.remove('aside-on')
+                                                }}>
                                                 <i className="menu-icon fas fa-tools "></i>
                                                 <span className="menu-text">Admin</span>
                                             </a>
@@ -70,31 +70,30 @@ export function SideMenu({user, router, clientUrl}) {
 
 
                                     <li className="menu-item profile" aria-haspopup="true">
-                                        {/*<Link href={"/profile"}>*/}
-                                        <a className="menu-link" href={"#"}
-                                           onClick={e => {
-                                               router.push('/my-applications');
-                                               document.querySelector('#kt_aside').classList.remove('aside-on')
-                                           }}>
-                                            <i className="menu-icon far fa-file-alt "></i>
-                                            <span className="menu-text">My Applications</span>
-                                        </a>
-                                        {/*</Link>*/}
+                                        <Link href={"/my-applications"}>
+                                            <a className="menu-link"
+                                                onClick={e => {
+                                                    //    router.push('/my-applications');
+                                                    document.querySelector('#kt_aside').classList.remove('aside-on')
+                                                }}>
+                                                <i className="menu-icon far fa-file-alt "></i>
+                                                <span className="menu-text">My Applications</span>
+                                            </a>
+                                        </Link>
 
                                     </li>
 
 
                                     <li className="menu-item profile" aria-haspopup="true">
-                                        {/*<Link href={"/profile"}>*/}
-                                        <a className="menu-link" href={"#"}
-                                           onClick={e => {
-                                               router.push('/profile');
-                                               document.querySelector('#kt_aside').classList.remove('aside-on')
-                                           }}>
-                                            <i className="menu-icon fas fas fa-user-circle "></i>
-                                            <span className="menu-text">Profile</span>
-                                        </a>
-                                        {/*</Link>*/}
+                                        <Link href={"/profile"}>
+                                            <a className="menu-link"
+                                                onClick={e => {
+                                                    document.querySelector('#kt_aside').classList.remove('aside-on')
+                                                }}>
+                                                <i className="menu-icon fas fas fa-user-circle "></i>
+                                                <span className="menu-text">Profile</span>
+                                            </a>
+                                        </Link>
 
                                     </li>
 
@@ -108,11 +107,7 @@ export function SideMenu({user, router, clientUrl}) {
                                 </> :
                                 <li className="menu-item profile" aria-haspopup="true">
                                     {/*<Link href={"/sign-in"}>*/}
-                                    <a className="menu-link" href={"#"}
-                                       onClick={e => {
-                                           router.push('/sign-in');
-                                           document.querySelector('#kt_aside').classList.remove('aside-on')
-                                       }}>
+                                    <a className="menu-link" href={"/sign-in"}>
                                         <i className="menu-icon fas fa-sign-in-alt "></i>
                                         <span className="menu-text">Sign In</span>
                                     </a>

@@ -1,9 +1,12 @@
-export default function Footer() {
+import Link from 'next/link';
+
+export default function Footer({ serverUrl }) {
     return (
         <div className="footer d-flex flex-column">
             <style jsx>
-            {`
+                {`
                 .footer {
+                    font-family: 'Inter', 'Noto Sans Hebrew', 'Alef', sans-serif;
                     padding: 74px 88px 50px 71px;
                     background-color: #1E202D;
                 }
@@ -29,10 +32,10 @@ export default function Footer() {
                 }
             `}
             </style>
-            <a href="#">כניסה / הרשמה</a>
-            <a href="#">חשבון</a>
-            <a href="#">משרות</a>
-            <a href="#">אודות</a>
+            <Link href={"/sign-in"}><a>כניסה / הרשמה</a></Link>
+            <Link href={"/sign-in"}><a>חשבון</a></Link>
+            <Link href={"/jobs"}><a>משרות</a></Link>
+            <Link href="/about"><a>אודות</a></Link>
             <p>Copyright © 2024. All rights reserved.</p>
         </div>
     )

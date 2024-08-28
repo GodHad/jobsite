@@ -33,11 +33,26 @@ export const updateIndustry = (industry) => {
     }
 }
 export const updateTitle = (title) => {
-    console.log(2, title)
     return (dispatch) => {
         dispatch({
             type: "SET_TITLE",
             payload: title
+        })
+    }
+}
+export const updateEmployAmount = (value) => {
+    return (dispatch) => {
+        dispatch({
+            type: "SET_EMPLOYAMOUNT",
+            payload: value
+        })
+    }
+}
+export const updateDate = (value) => {
+    return (dispatch) => {
+        dispatch({
+            type: "SET_DATE",
+            payload: value
         })
     }
 }

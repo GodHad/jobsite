@@ -1,26 +1,22 @@
+import React from 'react';
 import { Layout } from "../../components/shared/new/Layout";
 import Head from "next/head";
 import { CommonContent } from "../../components/shared/new/CommonContent";
 import ProjectItem from "../../components/shared/ProjectItem";
-import Image from "next/dist/client/image";
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from 'react-icons/fa';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import Select from "react-dropdown-select";
-import { JobSearch } from "../../components/JobSearch";
-import { SavedJobs } from "../../components/SavedJobs";
-import { JobsFeed } from "../../components/JobsFeed";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Requests } from "../../components/CustomHooks/Requests";
 import { NotifyComponent } from "../../components/shared/Notify";
 import { useSelector, useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../../state/index"
-import { store } from "../../state/store";
-import { reset, updateLocation } from "../../state/action-creators";
 import ReactPaginate from 'react-paginate';
-import ClipLoader from 'react-spinners/ClipLoader';
+import { DivLoader } from '../../components/shared/DivLoader';
+import moment from 'moment';
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -38,15 +34,15 @@ const useDebounce = (value, delay) => {
     return debouncedValue;
 };
 
-function JobIndex({ props, user, serverUrl, router, pageTitle }) {
+function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
     const [loading, setLoading] = useState(false);
     const { query } = router;
 
     const state = useSelector((state) => state);
-    const { title, location, industry, pageSize, page } = state.filters;
+    const { title, location, industry, pageSize, page, employAmount, date } = state.filters;
     const dispatch = useDispatch()
     const {
-        updateIndustry, updateLocation, updateTitle, reset, updatePageSize, updatePage
+        updateIndustry, updateLocation, updateTitle, reset, updatePageSize, updatePage, updateEmployAmount, updateDate
     } = bindActionCreators(actionCreators, dispatch)
 
 
@@ -58,37 +54,13 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
         }
     })
 
-
-    const resetFilters = async (e) => {
-        e.preventDefault()
-        reset()
-        setResetFiltersRand((Math.random() + 1).toString(36).substring(7))
-    }
-
     const [companyIndustries, setCompanyIndustries] = useState([])
-    const [jobLocations, setJobLocations] = useState([])
-    const [jobTitles, setJobTitles] = useState([])
-    const [savedPositions, setSavedPositions] = useState([])
-    const [resetFiltersRand, setResetFiltersRand] = useState(null)
-    const [savedPositionsIds, setSavedPositionsIds] = useState([])
 
     async function getPositionParams() {
         try {
             const url = `${serverUrl}/position/params`
             const { companyIndustries, jobLocations } = await Requests('get', url)
             setCompanyIndustries(companyIndustries)
-            setJobLocations(jobLocations)
-        } catch (error) {
-            console.log(error.message)
-        }
-    }
-
-    async function getSavedPositions() {
-        try {
-            const url = `${serverUrl}/saved-position?page_size=5`
-            const { data, savedPositionIds } = await Requests('get', url)
-            setSavedPositions(data)
-            setSavedPositionsIds(savedPositionIds)
         } catch (error) {
             console.log(error.message)
         }
@@ -99,9 +71,9 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
         try {
             setLoading(true);
             const { innerWidth: width, innerHeight: height } = window;
-            const { title, industry, location } = state.filters;
+            const { title, industry, location, employAmount, date } = state.filters;
 
-            const encodedFilters = JSON.parse(JSON.stringify({ title, industry, location }));
+            const encodedFilters = JSON.parse(JSON.stringify({ title, industry, location, employAmount, date }));
             for (const [key, value] of Object.entries(encodedFilters)) {
                 encodedFilters[key] = encodeURIComponent(value)
             }
@@ -112,7 +84,7 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
             } else if (url) {
                 endpoint = url && url + `&page=${page}&page_size=${page_size}`;
             } else {
-                endpoint = `${serverUrl}/position?jobTitle=${encodedFilters.title}&jobLocation=${encodedFilters.location}&companyIndustry=${encodedFilters.industry}&page=${page}&page_size=${page_size}`;
+                endpoint = `${serverUrl}/position?jobTitle=${encodedFilters.title}&jobLocation=${encodedFilters.location}&companyIndustry=${encodedFilters.industry}&companySize=${encodedFilters.employAmount}&publishDate=${encodedFilters.date}&page=${page}&page_size=${page_size}`;
             }
 
             const {
@@ -123,7 +95,6 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
             } = await Requests('get', endpoint)
             if (data.length === 0 && _metadata.page > 1) getJobs({ page: 1 })
             setJobs({ data, _metadata })
-            setJobTitles(distinctJobTitle)
 
 
             filterData.jobTitle && updateTitle(decodeURIComponent(filterData.jobTitle))
@@ -138,35 +109,6 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
             setLoading(false);
         }
     }
-
-    async function savePosition(id) {
-        try {
-            const url = `${serverUrl}/saved-position/` + id
-            const data = await Requests('post', url, {}, {})
-
-            NotifyComponent('success', "Success")
-
-            getSavedPositions()
-
-        } catch (error) {
-            NotifyComponent('failure', error.message)
-        }
-    }
-
-    async function unsavePosition(id) {
-        try {
-            const url = `${serverUrl}/saved-position/` + id
-            const data = await Requests('delete', url)
-
-            NotifyComponent('success', "Success")
-
-            getSavedPositions()
-
-        } catch (error) {
-            NotifyComponent('failure', error.message)
-        }
-    }
-
 
     useEffect(() => {
 
@@ -183,19 +125,19 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
         const url = string.length > 1 && `${serverUrl}/position?${string}` || null
 
         getJobs({ url })
-        getSavedPositions()
         getPositionParams()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    const debouncedTitle = useDebounce(title, 500);
     const debouncedLocation = useDebounce(location, 500);
     const debouncedPage = useDebounce(page, 500);
     const debouncedIndustry = useDebounce(industry, 500);
+    const debouncedEmployAmount = useDebounce(employAmount, 1000);
 
     useEffect(() => {
         getJobs({ page })
-        getSavedPositions();
-    }, [debouncedLocation, debouncedPage, debouncedIndustry])
+    }, [debouncedLocation, debouncedPage, debouncedIndustry, debouncedTitle, debouncedEmployAmount, date])
 
     if (!jobs.data) return <Layout loading={true} />
 
@@ -205,12 +147,14 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
                 <title>{pageTitle} - Jobs</title>
             </Head>
             <Layout loading={false} activeItem={"jobsIndex"} breadcrumbs={["Jobs", "Index"]} user={user}
-                router={router}>
+                router={router} clientUrl={clientUrl} serverUrl={serverUrl}>
                 <CommonContent />
-                <Filter location={location} updateLocation={updateLocation} companyIndustries={companyIndustries} updateIndustry={updateIndustry} />
-                {loading 
+                <Filter title={title} location={location} employAmount={employAmount} date={date} updateLocation={updateLocation} companyIndustries={companyIndustries} updateIndustry={updateIndustry} updateTitle={updateTitle} updateEmployAmount={updateEmployAmount} updateDate={updateDate} />
+                {loading
                     ?
-                        <LoadingComponent />
+                    <div className="loader-wrapper">
+                        <DivLoader />
+                    </div>
                     :
                     <>
                         {
@@ -218,11 +162,18 @@ function JobIndex({ props, user, serverUrl, router, pageTitle }) {
                                 <p className={"mt-4 text-center"}>No jobs found for this search criteria. <a href={"#"}
                                     onClick={reset}>Reset
                                     Filters</a>
-                                </p> : <MatchedProjects projects={jobs.data} serverUrl={serverUrl} />
+                                </p> : <MatchedProjects projects={jobs.data} serverUrl={serverUrl} user={user} />
                         }
                         <PaginatedItems itemsPerPage={pageSize} totalCount={jobs._metadata.total_count} currentPage={page} updatePage={updatePage} />
                     </>
                 }
+                <style jsx>{`
+                    .loader-wrapper {
+                        width: 100%;
+                        height: 750px; 
+                        position: relative
+                    }
+                `}</style>
             </Layout>
         </>
     )
@@ -232,38 +183,41 @@ export default JobIndex;
 
 const marks = [
     {
-        value: 0,
+        value: 5,
         label: '100k+',
     },
     {
-        value: 20,
+        value: 4,
         label: '1k+',
     },
     {
-        value: 40,
+        value: 3,
         label: '101 - 1k',
     },
     {
-        value: 60,
+        value: 2,
         label: '21 - 100',
     },
     {
-        value: 80,
+        value: 1,
         label: '0 - 20',
     },
     {
-        value: 100,
+        value: 0,
         label: 'הכל',
     },
 ];
 
-const EmployeeSlider = () => {
-    const [value, setValue] = useState(0);
+const EmployeeSlider = ({ employAmount, updateEmployAmount }) => {
+    const [value, setValue] = useState(employAmount);
+    const [newValue, setNewValue] = useState(employAmount);
     const [right, setRight] = useState(-2)
+    const [isDragging, setIsDragging] = useState(false)
 
     const handleChange = (event) => {
-        const tempSliderValue = event.target.value;
-        setValue(tempSliderValue);
+        const tempSliderValuIe = event.target.value;
+        updateEmployAmount(tempSliderValue);
+        setValue(tempSliderValue)
         const progress = (tempSliderValue / event.target.max) * 100;
         updateRightPosition(tempSliderValue, window.innerWidth)
         event.target.style.background = `linear-gradient(to right, #FF6C6C ${progress}%, #ccc ${progress}%)`;
@@ -271,12 +225,40 @@ const EmployeeSlider = () => {
 
     const updateRightPosition = (sliderValue, windowWidth) => {
         if (windowWidth > 560) {
-            setRight((-2 * sliderValue / 10 - 2) + Math.round(248 / 100 * sliderValue));
+            setRight((-2 * sliderValue / 50 - 2) + Math.round(248 / 500 * sliderValue));
         } else {
-            setRight((-2 * sliderValue / 10 - 2) + Math.round(180 / 100 * sliderValue));
+            setRight((-2 * sliderValue / 50 - 2) + Math.round(180 / 500 * sliderValue));
         }
     };
 
+    const handleMouseDown = () => {
+        setIsDragging(true);
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseMove = (event) => {
+        if (isDragging) {
+            const slider = document.getElementById('range');
+            const rect = slider.getBoundingClientRect();
+            const offsetX = event.clientX - rect.left;
+            let newValue = Math.round((offsetX / rect.width) * 5);
+            if (newValue < 0) newValue = 0;
+            if (newValue > 5) newValue = 5;
+            setNewValue(Math.floor(5 - newValue))
+        }
+    };
+    
+    const debouncedValue = useDebounce(newValue, 500);
+
+    useEffect(() => {
+        setValue(debouncedValue);
+        updateRightPosition(debouncedValue, window.innerWidth);
+        updateEmployAmount(debouncedValue);
+    }, [debouncedValue])
+    
     useEffect(() => {
         const handleResize = () => {
             updateRightPosition(value, window.innerWidth);
@@ -288,6 +270,21 @@ const EmployeeSlider = () => {
             window.removeEventListener('resize', handleResize);
         };
     }, [value]);
+
+    // useEffect(() => {
+    //     if (isDragging) {
+    //         window.addEventListener('mousemove', handleMouseMove);
+    //         window.addEventListener('mouseup', handleMouseUp);
+    //     } else {
+    //         window.removeEventListener('mousemove', handleMouseMove);
+    //         window.removeEventListener('mouseup', handleMouseUp);
+    //     }
+
+    //     return () => {
+    //         window.removeEventListener('mousemove', handleMouseMove);
+    //         window.removeEventListener('mouseup', handleMouseUp);
+    //     };
+    // }, [isDragging]);
 
     return (
         <>
@@ -322,7 +319,6 @@ const EmployeeSlider = () => {
     
             .sliderticks span {
                 line-height: 14px;
-                font-family: 'Inter';
                 font-weight: 600;
                 font-size: 12px;
                 color: #c4c4c4;
@@ -349,61 +345,38 @@ const EmployeeSlider = () => {
             input[type="range"]::-webkit-slider-thumb {
                 -webkit-appearance: none;
                 appearance: none;
-                height: 20px;
-                width: 20px;
-                background-color: #fff;
-                border: 2px solid #FF6C6C;
+                height: 12px;
+                width: 12px;
+                background-color: #FF6C6C;
+                // border: 2px solid #FF6C6C;
                 border-radius: 50%;
                 transition: 0.2s ease-in-out;
+                box-shadow:
+                0 0 0 3px #fff,
+                0 0 0 5px #FF6C6C;
             }
     
             .thumb-inner {
                 background-color: #FF6C6C;
                 width: 12px;
                 height: 12px;
-                top: 11px;
+                top: 12px;
                 position: absolute;
                 transform: translate(-50%, -50%);
                 border-radius: 50%;
+                z-index: 5;
             }
 
             @media (max-width: 1000px) {
                 .thumb-inner {
-                    top: 10px;
+                    top: 11px;
                 }
             }
     
-            input[type="range"]::-moz-range-thumb {
-                height: 20px;
-                width: 20px;
-                background-color: #fff;
-                border: 2px solid #FF6C6C;
-                border-radius: 50%;
-                transition: 0.2s ease-in-out;
-            }
-    
-            input[type="range"]::-webkit-slider-thumb:hover {
-                box-shadow: 0 0 0 10px rgba(255, 85, 0, 0.1);
-            }
-    
-            input[type="range"]:active::-webkit-slider-thumb {
-                box-shadow: 0 0 0 13px rgba(255, 85, 0, 0.2);
-            }
-    
-            input[type="range"]:focus::-webkit-slider-thumb {
-                box-shadow: 0 0 0 13px rgba(255, 85, 0, 0.2);
-            }
-    
-            input[type="range"]::-moz-range-thumb:hover {
-                box-shadow: 0 0 0 10px rgba(255, 85, 0, 0.1);
-            }
-    
-            input[type="range"]:active::-moz-range-thumb {
-                box-shadow: 0 0 0 13px rgba(255, 85, 0, 0.2);
-            }
-    
             input[type="range"]:focus::-moz-range-thumb {
-                box-shadow: 0 0 0 13px rgba(255, 85, 0, 0.2);
+                box-shadow:
+                0 0 0 3px #fff,
+                0 0 0 5px #FF6C6C;
             }
     
             .range {
@@ -428,14 +401,20 @@ const EmployeeSlider = () => {
             <div className="range-slider">
                 <input
                     type="range"
-                    min="0"
-                    max="100"
-                    step="20" // Ensure step is defined
+                    min={0}
+                    max={5}
+                    step={1}
                     value={value}
                     id="range"
                     onChange={handleChange}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    onMouseMove={handleMouseMove}
                 />
-                <span className="thumb-inner" style={{ right: right + 'px' }}></span>
+                {/* <span
+                    className="thumb-inner"
+                    style={{ right: right + 'px' }}
+                ></span> */}
                 <div className="sliderticks">
                     {marks.map(mark => (
                         <span key={'mark' + mark.value}>{mark.label}</span>
@@ -568,8 +547,7 @@ const LocationInput = ({ placeholder, id, value, updateLocation }) => {
     )
 }
 
-const RoleInput = ({ placeholder, id }) => {
-    const [value, setValue] = useState('');
+const RoleInput = ({ placeholder, id, value, updateTitle }) => {
     return (
         <div className="d-flex flex-column">
             <style jsx>{`
@@ -597,29 +575,47 @@ const RoleInput = ({ placeholder, id }) => {
                 }
             `}</style>
             <label htmlFor={id}>תפקיד</label>
-            <input type="text" id={id} value={value} placeholder={placeholder} onChange={(e) => setValue(e.target.value)} />
+            <input type="text" id={id} value={value} placeholder={placeholder} onChange={(e) => updateTitle(e.target.value)} />
         </div>
     )
 }
 
-const CustomDateInput = ({ value, onClick }) => (
+const CustomDateInput = React.forwardRef(({ value, onClick, handleClear }, ref) => (
     <div className="custom-input" onClick={onClick}>
         <input
             type="text"
             value={value}
             readOnly
             placeholder="Select a date"
+            ref={ref} // Forward the ref to the input element
         />
         <FaCalendarAlt className="calendar-icon" />
+        <button type="button" className='clear-button' onClick={handleClear}>
+            ×
+        </button>
+        <style jsx>{`
+            .clear-button {
+                position: absolute;
+                right: 0;
+                font-size: 16px;
+                background: transparent;
+                border: none;
+            }
+        `}</style>
     </div>
-);
+));
 
-const DateInput = () => {
-    const [startDate, setStartDate] = useState(new Date());
+const DateInput = ({date, updateDate}) => {
+    const [startDate, setStartDate] = useState(date ? parseISO(date) : '');
 
     const formatDate = (date) => {
         return date ? format(date, 'dd/MM/yyyy') : '';
     };
+
+    const handleClear = () => {
+        setStartDate('');
+        updateDate(null)
+    }
 
     return (
         <div className="d-flex flex-column">
@@ -642,7 +638,7 @@ const DateInput = () => {
                 }
             `}</style>
             <label>:פורסם ב</label>
-            <DatePicker selected={startDate} dateFormat={"dd/MM/yyyy"} onChange={(date) => setStartDate(date)} customInput={<CustomDateInput value={formatDate(startDate)} />} />
+            <DatePicker selected={startDate} dateFormat={"dd/MM/yyyy"} onChange={(date) => {setStartDate(date); updateDate(moment(date).format('YYYY-MM-DD'))}} customInput={<CustomDateInput value={formatDate(startDate)} handleClear={handleClear} />} />
         </div>
     )
 }
@@ -693,7 +689,7 @@ const BranchSelector = ({ id, companyIndustries, updateIndustry }) => {
     )
 }
 
-function Filter({ location, updateLocation, companyIndustries, updateIndustry }) {
+function Filter({ title, location, employAmount, updateTitle, updateLocation, date, companyIndustries, updateIndustry, updateEmployAmount, updateDate }) {
     const handleLocationChange = (e) => {
         updateLocation(e);
     }
@@ -701,6 +697,7 @@ function Filter({ location, updateLocation, companyIndustries, updateIndustry })
         <>
             <style jsx>{`
                 .filter-container {
+                    font-family: 'Inter', 'Noto Sans Hebrew', 'Alef', sans-serif;
                     background-color: rgba(202, 199, 199, .4);
                     padding: 90px 80px 80px;
                     border-radius: 8px;
@@ -738,7 +735,6 @@ function Filter({ location, updateLocation, companyIndustries, updateIndustry })
                 }
 
                 .hi-tech-filter {
-                    font-family: 'Inter';
                     max-width: 187px;
                 }
 
@@ -814,7 +810,7 @@ function Filter({ location, updateLocation, companyIndustries, updateIndustry })
                 <div className="hi-tech-employee">
                     <div className="hi-tech-filter">
                         <div className="hi-tech-filter-switch d-flex flex-row align-items-center">
-                            <HiTechSwitch sx={{ m: 1 }} defaultChecked />
+                            <HiTechSwitch />
                         </div>
                         <button className="btn-custom"></button>
                     </div>
@@ -826,6 +822,8 @@ function Filter({ location, updateLocation, companyIndustries, updateIndustry })
                                 step={null}
                                 valueLabelDisplay="auto"
                                 marks={marks}
+                                updateEmployAmount={updateEmployAmount}
+                                employAmount={employAmount}
                             />
                         </div>
                     </div>
@@ -833,10 +831,10 @@ function Filter({ location, updateLocation, companyIndustries, updateIndustry })
                 <div className="location-role">
                     <div className="location-filter">
                         <LocationInput id="location-input" value={location} placeholder="למשל תל אביב" updateLocation={handleLocationChange} />
-                        <RoleInput id="role-input" placeholder="e.g. Senior Public Relation" />
+                        <RoleInput id="role-input" value={title} placeholder="e.g. Senior Public Relation" updateTitle={e => updateTitle(e)} />
                     </div>
                     <div className="role-filter">
-                        <DateInput />
+                        <DateInput date={date} updateDate={updateDate} />
                         <BranchSelector
                             id="role-selector"
                             companyIndustries={companyIndustries}
@@ -849,11 +847,11 @@ function Filter({ location, updateLocation, companyIndustries, updateIndustry })
     )
 }
 
-function MatchedProjects({ projects, serverUrl }) {
+function MatchedProjects({ projects, serverUrl, user }) {
     return (
         <div className="matched-projects">
             {projects.map(project => (
-                <ProjectItem key={'project' + project.id} project={project} serverUrl={serverUrl} />
+                <ProjectItem key={'project' + project.id} project={project} serverUrl={serverUrl} user={user} />
             ))}
         </div>
     )
@@ -888,22 +886,3 @@ function PaginatedItems({ itemsPerPage, totalCount, updatePage, currentPage }) {
         />
     );
 }
-
-const LoadingComponent = () => (
-    <>
-        <style jsx>{`
-            .loader-container {
-                height: 50px;
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        `}</style>
-        <div className={"loader-div"}>
-            <div className={"loader-container"}>
-                <ClipLoader />
-            </div>
-        </div>
-    </>
-)

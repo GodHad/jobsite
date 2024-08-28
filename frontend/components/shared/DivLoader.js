@@ -3,7 +3,7 @@ import * as React from "react";
 
 export function DivLoader (){
     return (
-        <div className={"loader-div"}>
+        <>
             <div className={"loader-container"}>
                 <ClipLoader/>
             </div>
@@ -22,6 +22,6 @@ export function DivLoader (){
                 
                 `}</style>
 
-        </div>
+        </>
     )
 }

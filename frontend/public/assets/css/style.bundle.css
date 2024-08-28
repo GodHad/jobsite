@@ -85556,12 +85556,11 @@ body {
   background: #637099;
 }
 
-@media (min-width: 1680px) {
   .aside-fixed .aside {
     position: fixed;
     top: 0;
     bottom: 0;
-    left: 0;
+    left: -500px;
     z-index: 98;
   }
   .aside-static .aside {
@@ -85611,7 +85610,7 @@ body {
     -ms-flex-pack: center;
     justify-content: center;
     height: 80px;
-    width: 80px;
+    width: 100%;
     border-radius: 0.42rem;
     position: relative;
   }
@@ -85627,7 +85626,6 @@ body {
     position: absolute;
     right: 7px;
   }
-}
 .aside-menu .menu-nav {
   margin: 0;
   list-style: none;
@@ -87119,6 +87117,11 @@ body {
 .aside-menu.aside-menu-dropdown .menu-nav .menu-item:not([data-menu-submenu-mode=accordion]).menu-item-hover > .menu-submenu .menu-subnav .menu-separator {
     border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   }
+}
+.aside.aside-on {
+  -webkit-transition: left 0.3s ease, right 0.3s ease, bottom 0.3s ease, top 0.3s ease;
+  transition: left 0.3s ease, right 0.3s ease, bottom 0.3s ease, top 0.3s ease;
+  left: 0;
 }
 @media (max-width: 1680px) {
   .aside {

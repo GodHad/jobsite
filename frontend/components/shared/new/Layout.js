@@ -6,7 +6,7 @@ import * as React from "react";
 import Footer from "./Footer";
 import ClipLoader from "react-spinners/ClipLoader";
 
-export function Layout({ children, activeItem, user, logout, breadcrumbs, loading, router, clientUrl }) {
+export function Layout({ children, activeItem, user, logout, breadcrumbs, loading, router, clientUrl, serverUrl }) {
 
     const [ready, setReady] = useState(false)
     useEffect(() => {
@@ -40,11 +40,11 @@ export function Layout({ children, activeItem, user, logout, breadcrumbs, loadin
     }
     return (
         <>
-            <Header />
+            <Header user={user} clientUrl={clientUrl} />
             <SideMenu clientUrl={clientUrl} activeItem={activeItem} user={user} logout={logout}
                 router={router} />
             {children}
-            <Footer />
+            <Footer serverUrl={serverUrl} />
         </>
     )
 }

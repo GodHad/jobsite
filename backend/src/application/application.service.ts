@@ -65,6 +65,7 @@ export class ApplicationService {
         coverLetter: createPositionApplicationDto.coverLetter&&createPositionApplicationDto.coverLetter,
         linkedinProfile: createPositionApplicationDto.linkedinProfile&&createPositionApplicationDto.linkedinProfile,
         website: createPositionApplicationDto.website&&createPositionApplicationDto.website.trim(),
+        processing: true
       });
 
       file&&fileName&& await fs.writeFile(process.env.PWD+fileDirConfig+fileName, Buffer.from(file.buffer));
@@ -85,7 +86,8 @@ export class ApplicationService {
   async getUserJobApplications(user) {
     const jobApplications = await this.jobApplicationRepository.find({
       where: {userId: user.id},
-      order: {createdAt: 'DESC'}
+      order: {createdAt: 'DESC'},
+      relations: ['position']
     })
     return {data: jobApplications}
   }
@@ -103,5 +105,12 @@ export class ApplicationService {
     const jobApplication: JobApplication = await this.jobApplicationRepository.findOne(jobApplicationId)
     if (!jobApplication) throw new NotFoundException()
     res.download(process.env.PWD+fileDirConfig+jobApplication.resumeFileName)
+  }
+
+  async adminProcessedJobApplication(res, jobApplicationId) {
+    const jobApplication: JobApplication = await this.jobApplicationRepository.findOne(jobApplicationId)
+    if (!jobApplication) throw new NotFoundException();
+    await this.jobApplicationRepository.update({id: jobApplicationId}, {processing: false});
+    res.status(200).json({message: 'success'});
   }
 }

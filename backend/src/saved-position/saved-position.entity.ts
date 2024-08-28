@@ -5,11 +5,12 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  BeforeInsert, ValueTransformer, BeforeUpdate, AfterLoad
+  BeforeInsert, ValueTransformer, BeforeUpdate, AfterLoad,
+  ManyToOne
 } from "typeorm";
 import { validateOrReject } from "class-validator";
 import * as moment from "moment";
-
+import { Position } from "src/position/position.entity";
 
 @Entity()
 export class SavedPosition extends BaseEntity{
@@ -43,5 +44,7 @@ export class SavedPosition extends BaseEntity{
     this.updatedAt = moment(this.updatedAt).format('YYYY-MM-DD HH:mm:ss') as unknown as Date;
   }
 
+  @ManyToOne(() => Position, position => position.savedPositions)
+  position: Position;
 
 }

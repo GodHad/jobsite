@@ -97,6 +97,7 @@ textarea.form-control {
 
 body {
     font-family: -apple-system, system-ui, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Fira Sans, Ubuntu, Oxygen, Oxygen Sans, Cantarell, Droid Sans, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Lucida Grande, Helvetica, Arial, sans-serif;
+    background-color: #F5F5F5 !important;
 }
 
 .MuiAutocomplete-listbox {
@@ -120,7 +121,7 @@ body {
 
 .react-datepicker__input-container input {
     width: 197px;
-    padding: 13px 17px;
+    padding: 13px 28px;
     border: 1px solid #ced4da;
     font-size: 16px;
     border-radius: 4px;

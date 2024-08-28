@@ -14,6 +14,7 @@ export function Header({ user, clientUrl }) {
                     display: flex;
                     justify-content: space-between;
                     letter-spacing: 3px;
+                    font-family: 'Inter', 'Noto Sans Hebrew', 'Alef', sans-serif;
                 }
                 
                 .new-header .logo {
@@ -46,19 +47,25 @@ export function Header({ user, clientUrl }) {
                     background-color: transparent;
                     border: none;
                 }
+
+                @media (max-width: 560px) {
+                    .new-header {
+                        padding: 10px 15px;
+                    }
+                }
             `}
             </style>
             <div className="new-header">
-                <div className="logo">
+                <a href={clientUrl} style={{ backgroundColor: "transparent" }} className="logo">
                     <Image src="/assets/image/logo.png" width="17" height="37" alt="Logo" />
                     <p className="logo-title">AUTOFLY</p>
-                </div>
+                </a>
                 <div className="d-flex flex-row justify-content-center align-items-center" style={{ gap: '60px' }}>
                     <div className="all-jobs-btn d-flex flex-column justify-content-center align-items-center">
-                        <div className="ml-10">
+                        <div>
                             <Image src="/assets/image/all-jobs.png" width="50" height="45" alt="all jobs" />
                         </div>
-                        <Link href={"#"}>כל המשרות</Link>
+                        <Link href={"/jobs"}><a>כל המשרות</a></Link>
                     </div>
                     <button className="nav-menu" onClick={e => { document.querySelector("#kt_aside").classList.toggle("aside-on") }}>
                         <svg width="47px" height="47px" viewBox="0 0 20.00 20.00" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" strokeWidth="2">

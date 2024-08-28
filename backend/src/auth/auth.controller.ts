@@ -4,7 +4,6 @@ import {
   Post, Put, Query, Req, Res, UsePipes,
   ValidationPipe, UseGuards
 } from "@nestjs/common";
-import { SignupCredentialsDto } from "./dto/signup-credentials.dto";
 import { SigninCredentialsDto } from "./dto/signin-credentials.dto";
 import { query, Request, Response } from "express";
 import { AuthService } from "./auth.service";
@@ -36,12 +35,14 @@ export class AuthController {
   //   return await this.authService.signUp(req, res, authCredentialsDto);
   // }
 
-  // @Post('/signin') // Sign in controller
-  // async signIn(@Req() req: Request,
-  //              @Res({ passthrough: true }) res: Response,
-  //              @Body() authCredentialsDto: SigninCredentialsDto): Promise<{ token } >{
-  //   return await this.authService.signIn(req, res, authCredentialsDto);
-  // }
+  @Post('/signin') // Sign in controller
+  async signIn(@Req() req: Request,
+              @Res({ passthrough: true }) res: Response,
+              @Body() body: { email: string; password: string }) {
+    const user = await this.authService.validateUser(body.email, body.password);
+    if (!user) return res.status(500).json({message: 'failed to login'});
+    this.authService.login(user, res, req);
+  }
 
   @Get('/linkedin')
   @UseGuards(AuthGuard('linkedin'))
@@ -53,6 +54,17 @@ export class AuthController {
                      @Res({ passthrough: true }) res: Response,
                      @GetUser() user) {
     return this.authService.linkedinLogin(user, res, req)
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {}
+
+
+  @Get('callback/google')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return this.authService.googleLogin(res, req)
   }
 
 }

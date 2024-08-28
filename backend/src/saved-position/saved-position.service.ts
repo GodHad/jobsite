@@ -19,20 +19,22 @@ export class SavedPositionService {
     let data = [];
     let savedPositionsIds;
     let returnedSavedPositionsIds;
+    let allSavedPositions;
     const { connection, queryRunner } = await this.savedPositionRepository.getTransactionConnection();
     try {
       savedPositions = await queryRunner.manager
         .getRepository(SavedPosition).createQueryBuilder("savedPosition")
         .useTransaction(true).setLock("pessimistic_write")
-        .where(`savedPosition.userId = :userId`, {userId: user.id})
+        .where(`savedPosition.userId = :userId`, {userId: 1})
         // .andWhere(`savedPosition.positionId = :positionId`, {positionId})
         .take(page_size)
         .orderBy('savedPosition.id', 'ASC')
         .getMany();
-      const allSavedPositions = await queryRunner.manager
+      allSavedPositions = await queryRunner.manager
         .getRepository(SavedPosition).createQueryBuilder("savedPosition")
-        .useTransaction(true).setLock("pessimistic_write")
-        .where(`savedPosition.userId = :userId`, {userId: user.id})
+        .leftJoinAndSelect('savedPosition.position', 'position')
+        // .useTransaction(true).setLock("pessimistic_write")
+        .where(`savedPosition.userId = :userId`, {userId: 1})
         .orderBy('savedPosition.id', 'ASC')
         .getMany();
       returnedSavedPositionsIds = allSavedPositions.map(item => item.positionId)
@@ -63,7 +65,8 @@ export class SavedPositionService {
     }
     finally {
       await queryRunner.release();
-      return {data: data, savedPositionIds: returnedSavedPositionsIds}
+      // return {data: data, savedPositionIds: returnedSavedPositionsIds}
+      return {data: allSavedPositions, savedPositionIds: returnedSavedPositionsIds}
     }
 
 
