@@ -56,6 +56,18 @@ export class UserController {
     return await this.userService.downloadAuthUserCV(res, user)
   }
 
+  @Post('/user/update-hitech-view')
+  @UseGuards(AuthGuard('jwt'))
+  async updateHiTechView(@GetUser() user, @Body() body: {hiTech: boolean}, @Res() res: Response) {
+    return await this.userService.updateHiTechView(res, user, body.hiTech);
+  }
+
+  @Post('/user/active-subscribe')
+  @UseGuards(AuthGuard('jwt'))
+  async activeSubscription(@GetUser() user, @Body() body: {optionType: string}, @Res() res: Response) {
+    return await this.userService.activeSubscription(res, user, body.optionType)
+  }
+
   @Get('/system/users')
   @UseGuards(AuthGuard('jwt'), AdminGuard)
   async adminGetAllUsers(@GetUser() user, @Query() getUserFilterDto: UserFilterDto) {

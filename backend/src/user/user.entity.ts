@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import { IsBoolean, IsEmail, IsNumber, IsNumberString, IsOptional, validateOrReject } from "class-validator";
 import * as moment from "moment-timezone"
+import { Trial } from "src/trial/trial.entity";
 
 @Entity()
 export class User extends BaseEntity{
@@ -48,6 +49,16 @@ export class User extends BaseEntity{
   address: string;
   @Column({nullable: true})
   phoneCountryPrefix: string;
+  @Column({default: false})
+  hiTechView: boolean;
+  @Column({nullable: true})
+  subscribeType: string;
+  @Column({nullable: true})
+  subscribeStartDate: Date;
+  @Column({nullable: true})
+  subscribeEndDate: Date;
+  @Column({nullable: true})
+  subscribeStatus: string;
 
   @CreateDateColumn()
   createdAt: Date;

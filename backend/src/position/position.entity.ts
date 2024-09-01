@@ -57,7 +57,8 @@ export class Position extends BaseEntity{
   jobExternalUrl: string;
   @Column({nullable:true, default: "internal"})
   jobApplicationType:string;
-
+  @Column({default: false})
+  hiTech: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

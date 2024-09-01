@@ -4,6 +4,7 @@ import {
   Get, Param, Post,
   Query, Req, Res,
   UploadedFile,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -19,6 +20,7 @@ import { CreatePositionApplicationDto } from './dto/create-position-application.
 
 import { ApplicationService } from './application.service';
 import { AdminGuard } from '../auth/guard/admin.guard';
+import { CustomValidationFilter } from 'src/common/filters/custom-validation.filter';
 
 @Controller('/')
 @UsePipes(new ValidationPipe({transform: true}))
@@ -34,6 +36,7 @@ export class ApplicationController {
 
   @Post('/position/:id/application')
   @UseInterceptors(FileInterceptor('file'))
+  @UseFilters(CustomValidationFilter)
   async createPositionApplication(@GetUser() user, @Body() createPositionApplicationDto: CreatePositionApplicationDto, @UploadedFile() file: Express.Multer.File, @Param('id') positionId){
     return await this.applicationService.createApplication(user, positionId, createPositionApplicationDto, file)
   }

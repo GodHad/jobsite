@@ -33,7 +33,6 @@ export default function Footer({ serverUrl }) {
             `}
             </style>
             <Link href={"/sign-in"}><a>כניסה / הרשמה</a></Link>
-            <Link href={"/sign-in"}><a>חשבון</a></Link>
             <Link href={"/jobs"}><a>משרות</a></Link>
             <Link href="/about"><a>אודות</a></Link>
             <p>Copyright © 2024. All rights reserved.</p>

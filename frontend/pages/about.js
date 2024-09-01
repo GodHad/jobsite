@@ -2,9 +2,45 @@ import Head from 'next/head';
 import { Layout } from '../components/shared/new/Layout';
 import { CommonContent } from '../components/shared/new/CommonContent';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useEffect, useRef } from 'react';
+import { NotifyComponent } from '../components/shared/Notify';
+import { Requests } from '../components/CustomHooks/Requests';
 
 export default function About({ user, serverUrl, clientUrl, router, pageTitle }) {
+    const [selectedPlan, setSelectedPlan] = useState('option1');
+
+    const handleChange = (e) => {
+        setSelectedPlan(e.target.value);
+    }
+
+    const handleSubmitPremium = async () => {
+        if (user) {
+            try {
+                const response = await Requests('post', `${serverUrl}/user/active-subscribe`, {}, { optionType: selectedPlan });
+                NotifyComponent('success', response.message)
+            } catch (error) {
+                NotifyComponent('failure', error.message)
+            }
+        } else {
+            router.push('/sign-in');
+        }
+    }
+
+    const subscriptionRef = useRef(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (isClient && window.location.hash === '#subscription') {
+            if (subscriptionRef.current) {
+                subscriptionRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }, [isClient]);
+
     return (
         <>
             <Head>
@@ -71,7 +107,6 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                         font-size: 24px;
                         line-height: 28.8px;
                         color: rgba(255,255,255,.8);
-                        padding-left: 146px;
                     }
 
                     @media (max-width: 960px) {
@@ -301,7 +336,7 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                         margin-bottom: 21px;
                     }
 
-                    .icon-wrapper .badge {
+                    .badge {
                         position: absolute;
                         padding: 5px;
                         background-color: #FFD200;
@@ -328,6 +363,13 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                     @media (max-width: 970px) {
                         .quick-way-container {
                             flex-direction: column;
+                        }
+                    }
+
+                    @media (max-width: 570px) {
+                        .quick-way-container {
+                            padding-left: 10px;
+                            padding-right: 10px;
                         }
                     }
 
@@ -378,6 +420,25 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                         padding: 51px 33px 22px;
                         width: 100%;
                         margin-bottom: 32px;
+                        position: relative;
+                    }
+
+                    .quick-way-container-right label .badge {
+                        font-size: 14px;
+                        font-weight: 700;
+                        line-height: 16.94px;
+                        letter-spacing: 0.05em;
+                        text-align: center;
+                        padding: 12px 30px;
+                        left: -82px;
+                        top: -20px;
+                    }
+
+                    @media (max-width: 570px) {
+                        .quick-way-container-right label .badge {
+                            left: -8px;
+                            padding: 12px;
+                        }
                     }
 
                     .quick-way-container-right label input {
@@ -456,16 +517,16 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                         <div className="premium-free-content">
                             <div className='premium-free-content-left'>
                                 <div className='icons-container'>
-                                    <div className='icon-wrapper' style={{width: 108, height: 110}}>
+                                    <div className='icon-wrapper' style={{ width: 108, height: 110 }}>
                                         <Image src={"/assets/image/icon3 1.png"} width={65} height={61} />
                                     </div>
                                     <div className='plus-icon'></div>
-                                    <div className='icon-wrapper' style={{width: 147, height: 148, position: 'relative'}}>
+                                    <div className='icon-wrapper' style={{ width: 147, height: 148, position: 'relative' }}>
                                         <Image src={"/assets/image/all-jobs.png"} width={70} height={64} />
                                         <span className='badge'>חינם</span>
                                     </div>
                                     <div className='plus-icon'></div>
-                                    <div className='icon-wrapper' style={{width: 108, height: 110}}>
+                                    <div className='icon-wrapper' style={{ width: 108, height: 110 }}>
                                         <Image src={"/assets/image/icon2 1.png"} width={76} height={60} />
                                     </div>
                                     <p>הגש/י בקליק</p>
@@ -481,7 +542,7 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                                 <p>ויחד עם זאת, הגשת מועמדות למשרה נשארה כשהיתה, פעולה איטית ומייגעת,</p>
                                 <p>מבוססת על לוחות דרושים מוטים</p>
                                 <br />
-                                <p style={{direction: "ltr", unicodeBidi: 'inherit'}}>משנה זאת<span> AUTOFLY</span></p>
+                                <p style={{ direction: "ltr", unicodeBidi: 'inherit' }}>משנה זאת<span> AUTOFLY</span></p>
                                 <br />
                                 <p>חבילת הפרמיום שלנו הופכת את תהליך הגשת המועמדות למהירה וסופר קלה,</p>
                                 <p>מתאימה אותה לימינו</p>
@@ -529,20 +590,20 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                             <p>שבון כאן יקנה לך נוחות הגשת מועמדות למשרה, ללא הטרחה הנלווית לה.</p>
                         </div>
                     </div>
-                    <div className='quick-way-container'>
+                    <div className='quick-way-container' ref={subscriptionRef} id="subscription">
                         <div className='quick-way-container-left'>
                             <h2>הדרך המהירה והקלה <br />למציאת עבודה</h2>
                             <div className='icons-container'>
-                                <div className='icon-wrapper' style={{width: 108, height: 110}}>
+                                <div className='icon-wrapper' style={{ width: 108, height: 110 }}>
                                     <Image src={"/assets/image/icon3 1.png"} width={65} height={61} />
                                 </div>
                                 <div className='plus-icon'></div>
-                                <div className='icon-wrapper' style={{width: 147, height: 148, position: 'relative'}}>
+                                <div className='icon-wrapper' style={{ width: 147, height: 148, position: 'relative' }}>
                                     <Image src={"/assets/image/all-jobs.png"} width={70} height={64} />
                                     <span className='badge'>חינם</span>
                                 </div>
                                 <div className='plus-icon'></div>
-                                <div className='icon-wrapper' style={{width: 108, height: 110}}>
+                                <div className='icon-wrapper' style={{ width: 108, height: 110 }}>
                                     <Image src={"/assets/image/icon2 1.png"} width={76} height={60} />
                                 </div>
                                 <p>הגש/י בקליק</p>
@@ -555,27 +616,22 @@ export default function About({ user, serverUrl, clientUrl, router, pageTitle })
                         <div className='quick-way-container-right'>
                             <label>
                                 <div>
-                                    <h5>1 חודש</h5>
-                                    <p>29.90 ש”ח מדי חודש לאחר שבוע ניסיון</p>
+                                    <h5>ראשון לדעת</h5>
+                                    <p>4 שקלים מדי חודש לאחר שבוע ניסיון</p>
                                 </div>
-                                <input type='radio' name='plan' value={1} checked />
+                                <input type='radio' name='plan' value={"option1"} checked={selectedPlan === 'option1'} onChange={handleChange} />
+                                <span className='badge'>נסה 7 ימים חינם</span>
                             </label>
                             <label>
                                 <div>
-                                    <h5>3 חודשים</h5>
-                                    <p>74.90 ש”ח חיוב כל 3 חודשים</p>
+                                    <h5>הגש/י בקליק</h5>
+                                    <p>30 שקלים מדי חודש לאחר שבוע ניסיון</p>
                                 </div>
-                                <input type='radio' name='plan' value={3} />
-                            </label>
-                            <label>
-                                <div>
-                                    <h5>12 חודשים</h5>
-                                    <p>249.90 ש”ח חיוב כל 12 חודשים</p>
-                                </div>
-                                <input type='radio' name='plan' value={12} />
+                                <input type='radio' name='plan' value={"option2"} checked={selectedPlan === 'option2'} onChange={handleChange} />
+                                <span className='badge'>נסה 7 ימים חינם</span>
                             </label>
                             <div className='try-free-button-wrapper'>
-                                <Link href="/profile"><a>הרשם ונסה חינם</a></Link>
+                                <a onClick={handleSubmitPremium}>הרשם ונסה חינם</a>
                                 ב 7 הימים הראשונים, באפשרותך לבטל את המנוי ללא כל עלות
                             </div>
                         </div>

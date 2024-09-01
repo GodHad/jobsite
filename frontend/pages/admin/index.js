@@ -34,7 +34,7 @@ createTheme('solarized', {
     },
 });
 
-export default function AdminUserIndexList({ user, router, pageTitle }) {
+export default function AdminUserIndexList({ user, router, pageTitle, clientUrl }) {
     const [users, setUsers] = useState(null)
     const [jobApplications, setJobApplications] = useState(null)
     const [positions, setPositions] = useState({
@@ -159,6 +159,7 @@ export default function AdminUserIndexList({ user, router, pageTitle }) {
             name: 'id',
             selector: (row) => row.id,
             sortable: true,
+            width: '60px'
         },
         {
             name: 'firstname',
@@ -174,6 +175,24 @@ export default function AdminUserIndexList({ user, router, pageTitle }) {
             name: 'email',
             selector: (row) => row.email,
             sortable: true,
+            width: '180px'
+        },
+        {
+            name: 'subscribe type',
+            selector: (row) => row.subscribeType === 'option1' ? '4 NIS' : row.subscribeType === 'option2' ? '30 NIS' : 'None',
+            sortable: true,
+            width: '150px'
+        },
+        {
+            name: 'subscribe period',
+            selector: (row) => row.subscribeStatus ? `${moment(row.subscribeStartDate).format('YYYY-MM-DD')}~${moment(row.subscribeEndDate).format('YYYY-MM-DD')}` : '',
+            width: '180px'
+        },
+        {
+            name: 'subscribe status',
+            selector: (row) => row.subscribeStatus ? row.subscribeStatus : '',
+            sortable: true,
+            width: '140px'
         },
         {
             name: 'createdAt',
@@ -217,6 +236,11 @@ export default function AdminUserIndexList({ user, router, pageTitle }) {
         {
             name: 'jobDescription',
             selector: (row) => row.jobDescription.slice(0, 10),
+            sortable: true,
+        },
+        {
+            name: 'Hi-Tech',
+            selector: (row) => row.hiTech ? "Yes" : "No",
             sortable: true,
         },
         {
@@ -304,7 +328,7 @@ export default function AdminUserIndexList({ user, router, pageTitle }) {
             <Head>
                 <title>{pageTitle} - Admin</title>
             </Head>
-            <Layout loading={false} activeItem={"profile"} breadcrumbs={["Jobs", "Index"]} user={user} router={router}>
+            <Layout loading={false} activeItem={"profile"} breadcrumbs={["Jobs", "Index"]} user={user} router={router} clientUrl={clientUrl}>
                 <h1 className={"text-center"}> Admin</h1>
                 <div className="card rounded-sm mb-3">
                     <div className="card-body">

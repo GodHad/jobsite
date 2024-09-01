@@ -5,7 +5,8 @@ const filterReducerState = {
     pageSize: 10, 
     page: 1,
     employAmount: 0,
-    date: null
+    date: null,
+    hiTech: false
 }
 
 const reducer = (state = filterReducerState, action) => {
@@ -24,7 +25,9 @@ const reducer = (state = filterReducerState, action) => {
         case "SET_EMPLOYAMOUNT": 
             return {...state, employAmount: action.payload};
         case "SET_DATE":
-            return {...state, date: action.payload}
+            return {...state, date: action.payload};
+        case "SET_HI_TECH":
+            return {...state, hiTech: action.payload}
         case "RESET_FILTERS":
             return filterReducerState;
         default:

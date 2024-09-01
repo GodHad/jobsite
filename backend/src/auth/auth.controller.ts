@@ -37,11 +37,11 @@ export class AuthController {
 
   @Post('/signin') // Sign in controller
   async signIn(@Req() req: Request,
-              @Res({ passthrough: true }) res: Response,
+              @Res() res: Response,
               @Body() body: { email: string; password: string }) {
     const user = await this.authService.validateUser(body.email, body.password);
-    if (!user) return res.status(500).json({message: 'failed to login'});
-    this.authService.login(user, res, req);
+    if (!user.success) return res.status(401).json({message: user.error});
+    return this.authService.login(user, res, req);
   }
 
   @Get('/linkedin')

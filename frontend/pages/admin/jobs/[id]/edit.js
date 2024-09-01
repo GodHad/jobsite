@@ -22,6 +22,7 @@ export default function AdminJobEdit({user, serverUrl, query, router}) {
     const [contentHTML, setContentHTML] = useState(null)
 
     const [defaultContentState, setDefaultContentState] = useState(null)
+    const [hiTech, setHiTech] = useState(false);
 
     function onDescriptionEditorStateChange(EditorState) {
         setEditorState(EditorState)
@@ -45,6 +46,7 @@ export default function AdminJobEdit({user, serverUrl, query, router}) {
             const position = await Requests('get', getPositionUrl)
             setContentHTML(position.jobDescription)
             setPosition(position)
+            setHiTech(position.hiTech)
 
             const blocksFromHtml = htmlToDraft(position.jobDescription);
             const {contentBlocks, entityMap} = blocksFromHtml;
@@ -68,6 +70,7 @@ export default function AdminJobEdit({user, serverUrl, query, router}) {
             if (body.jobApplicationType === "external" && (!body.jobExternalUrl || body.jobExternalUrl === "")) throw new Error("Job External Url is required for selected application type")
             body.jobDescription = contentHTML;
             body.companyImageUrl = body.companyImageUrl === "" ? null : body.companyImageUrl
+            body.hiTech = hiTech;
             await Requests('put', url, {}, body)
 
             NotifyComponent('success', 'Success')
@@ -171,7 +174,10 @@ export default function AdminJobEdit({user, serverUrl, query, router}) {
 
                             {/*<label>Publish Date</label>*/}
                             {/*<input name={"publishDate"} type="text" className="form-control mb-3" defaultValue={position.publishDate}  />*/}
-
+                            <div className="d-flex flex-row align-items-center">
+                                <label>Hi-Tech</label>
+                                <input name={"hiTech"} type="checkbox" className="form-control ml-3" checked={hiTech} onChange={(e) => setHiTech(e.target.checked)} style={{width: '12px'}} defaultChecked={hiTech} />
+                            </div>
 
                             <button className="btn btn-dark btn-sm btn-block" type={"submit"}>
                                 Update

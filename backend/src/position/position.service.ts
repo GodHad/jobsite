@@ -44,7 +44,7 @@ export class PositionService {
       jobTitle, jobLocation,
       jobDescription, jobRequirements, companyName, companySize,
       companyIndustry, companyAbout, publishDate, companyImageUrl,
-      jobApplicationType, jobExternalUrl
+      jobApplicationType, jobExternalUrl, hiTech
     }: any = createPositionDto;
     const record = await this.positionRepository.create({
       jobTitle, jobLocation,
@@ -52,7 +52,7 @@ export class PositionService {
       // jobRequirements,
       companyName, companySize,
       companyIndustry, companyAbout,
-      jobApplicationType, jobExternalUrl
+      jobApplicationType, jobExternalUrl, hiTech
       // publishDate,
     });
 
@@ -108,7 +108,7 @@ export class PositionService {
       jobTitle, jobLocation,
       jobDescription, jobRequirements, companyName, companySize,
       companyIndustry, companyAbout, publishDate, companyImageUrl,
-      jobApplicationType, jobExternalUrl
+      jobApplicationType, jobExternalUrl, hiTech
     }: any = createPositionDto;
 
     let position: any = await this.positionRepository.findOne(createPositionDto.id)
@@ -120,7 +120,7 @@ export class PositionService {
       jobTitle, jobLocation,
       jobDescription, jobRequirements, companyName, companySize,
       companyIndustry, companyAbout, publishDate, companyImageUrl,
-      jobApplicationType, jobExternalUrl
+      jobApplicationType, jobExternalUrl, hiTech
     }
     await this.positionRepository.save(position)
   }
@@ -145,7 +145,7 @@ export class PositionService {
 
   }
 
-  async getRecentPositions({ companySize, jobTitle, publishDate, companyIndustry, jobLocation, page_size = 10, page = 1 }: GetPositionsFilterDto) {
+  async getRecentPositions({ companySize, jobTitle, publishDate, companyIndustry, jobLocation, hiTech, page_size = 10, page = 1 }: GetPositionsFilterDto) {
     try {
 
       const companySizes = [0, 20, 100, 1000, 100000, 10000000]
@@ -182,11 +182,11 @@ export class PositionService {
         query.andWhere("CAST(position.companySize AS INTEGER) BETWEEN :start AND :end", { start, end });
       }
 
-
+      if (hiTech) query.andWhere("position.hiTech = :hiTech", { hiTech })
 
       if (publishDate && publishDate !== 'null') {
         const startOfDay = `${publishDate} 00:00:00`;
-        const endOfDay = `${publishDate} 23:59:59`;
+        const endOfDay = moment().format('YYYY-MM-DD HH:mm:ss');
         query.andWhere('position.createdAt >= :startOfDay', { startOfDay })
         query.andWhere('position.createdAt <= :endOfDay', { endOfDay })
       }

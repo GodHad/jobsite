@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 @media (min-width: 992px) {
     .aside-enabled .header.header-fixed {
         left: 0px;

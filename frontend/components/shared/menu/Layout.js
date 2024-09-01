@@ -48,7 +48,7 @@ export function Layout({children, activeItem, user, logout, breadcrumbs, loading
     return (
         <>
             <MobileHeader clientUrl={clientUrl}/>
-            <Header user={user} clientUrl={clientUrl}/>
+            <Header user={user} clientUrl={clientUrl} router={router} />
             <div className="d-flex flex-column flex-root">
                 <div className="d-flex flex-row flex-column-fluid page">
                     <SideMenu clientUrl={clientUrl} activeItem={activeItem} user={user} logout={logout}

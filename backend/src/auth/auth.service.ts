@@ -54,11 +54,20 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findOneByEmail(email);
-    if (user && await bcrypt.compare(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    if (user) {
+      if (typeof user.password !== 'string') {
+        return {error: 'Password is wrong!', success: false}
+      }
+      if (await bcrypt.compare(password, user.password)) {
+        const { ...result } = user;
+        return {...result, success: true};
+      } else {
+        return {error: 'Password is wrong!', success: false}
+      }
+    } else {
+      return {error: 'User does not exist!', success: false}
     }
-    return null;
+    
   }
 
   async login(user: any, res: Response, req: Request) {

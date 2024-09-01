@@ -4,10 +4,10 @@ import config from "../../../config/default.js"
 const serverUrl = config.domain.server
 
 import Link from "next/link"
-import {NotifyComponent} from "../Notify";
-import {Requests} from "../../CustomHooks/Requests";
+import { NotifyComponent } from "../Notify";
+import { Requests } from "../../CustomHooks/Requests";
 
-export function Header({user, clientUrl}) {
+export function Header({ user, clientUrl, router }) {
 
     async function logout(event) {
         event.preventDefault();
@@ -33,8 +33,8 @@ export function Header({user, clientUrl}) {
                         <ul className="menu-nav">
                             <li className="menu-item menu-item-active" aria-haspopup="true">
 
-                                <a href={clientUrl} style={{backgroundColor: "transparent"}} className="menu-link">
-                                    <img src={"/assets/placeholder.jpg"} style={{maxWidth: 115, maxHeight: 40}}/>
+                                <a href={clientUrl} style={{ backgroundColor: "transparent" }} className="menu-link">
+                                    <img src={"/assets/placeholder.jpg"} style={{ maxWidth: 115, maxHeight: 40 }} />
                                 </a>
 
 
@@ -53,10 +53,19 @@ export function Header({user, clientUrl}) {
 
                     <div className="topbar">
                         <div className="topbar-item">
+                            <a
+                                className="btn btn-icon btn-clean btn-lg mr-1"
+                                id="kt_quick_panel_toggle"
+                                onClick={() => router.back()}
+                            >
+                                <i className="fas fa-arrow-left text-light"></i>
+                            </a>
+                        </div>
+                        <div className="topbar-item">
 
 
                             <a href={clientUrl} className="btn btn-icon btn-clean btn-lg mr-1"
-                               id="kt_quick_panel_toggle">
+                                id="kt_quick_panel_toggle">
                                 <i className="fas fa-home text-light"></i>
 
                             </a>
@@ -80,6 +89,7 @@ export function Header({user, clientUrl}) {
 
                         {user ?
                             <>
+
                                 <div className="topbar-item">
                                     <Link href="/my-applications">
                                         <a className="btn btn-icon btn-clean btn-lg mr-1" id="kt_quick_panel_toggle">
@@ -100,7 +110,7 @@ export function Header({user, clientUrl}) {
 
                                 <div className="topbar-item">
                                     <a href={"#"} onClick={logout} className="btn btn-icon btn-clean btn-lg mr-1"
-                                       id="kt_quick_panel_toggle">
+                                        id="kt_quick_panel_toggle">
                                         {/*<i className="fas fa-sign-in-alt text-light"></i>*/}
                                         <i className="fas fa-sign-out-alt text-danger"></i>
 
@@ -110,18 +120,18 @@ export function Header({user, clientUrl}) {
 
                                 <div className="topbar-item">
                                     <div className="btn btn-icon w-auto btn-clean d-flex align-items-center btn-lg px-2"
-                                         id="kt_quick_user_toggle">
+                                        id="kt_quick_user_toggle">
                                         {/*<span*/}
                                         {/*    className="text-muted font-weight-bold font-size-base d-none d-md-inline mr-1">Hi,</span>*/}
                                         {/*<span*/}
                                         {/*    className="text-light-50 font-weight-bolder font-size-base d-none d-md-inline mr-3">{user.firstname}</span>*/}
                                         <span className="symbol symbol-35 symbol-light-success">
-											<span className="symbol-label font-size-h5 font-weight-bold" style={{
+                                            <span className="symbol-label font-size-h5 font-weight-bold" style={{
                                                 backgroundImage: `url(${user.photoUrl})`
                                             }}>
                                                 {/*{user.lastname}*/}
-											</span>
-										</span>
+                                            </span>
+                                        </span>
                                     </div>
                                 </div>
 
@@ -130,7 +140,7 @@ export function Header({user, clientUrl}) {
 
                                 <div className="topbar-item">
                                     <a href={"/sign-in"} className="btn btn-icon btn-clean btn-lg mr-1"
-                                       id="kt_quick_panel_toggle">
+                                        id="kt_quick_panel_toggle">
                                         {/*<i className="fas fa-sign-in-alt text-light"></i>*/}
                                         <i className="fas fa-sign-in-alt text-info"></i>
 

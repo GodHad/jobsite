@@ -37,11 +37,13 @@ export class CreatePositionDto {
   @IsOptional()
   @IsUrl()
   companyImageUrl: string;
-
+  
+  
   @IsIn(["internal", "external"])
   jobApplicationType:string;
-
-
+  
+  
+  hiTech: boolean;
   jobExternalUrl: string;
   // @IsString()
   // @MinLength(2)

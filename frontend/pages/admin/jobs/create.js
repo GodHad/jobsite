@@ -14,6 +14,7 @@ export default function AdminJobCreate({user, serverUrl, router}) {
     const [jobLocations, setJobLocations] = useState([])
     const [editorState, setEditorState] = useState(false)
     const [contentHTML, setContentHTML] = useState(null)
+    const [hiTech, setHiTech] = useState(false);
 
     function onDescriptionEditorStateChange(EditorState) {
         setEditorState(EditorState)
@@ -44,6 +45,7 @@ export default function AdminJobCreate({user, serverUrl, router}) {
             const body = getFormInputValues(event)
             if (body.jobApplicationType === "external" && (!body.jobExternalUrl || body.jobExternalUrl === "")) throw new Error("Job External Url is required for selected application type")
             body.jobDescription = contentHTML;
+            body.hiTech = hiTech;
             await Requests('post', url, {}, body)
 
             NotifyComponent('success', 'Success')
@@ -135,8 +137,10 @@ export default function AdminJobCreate({user, serverUrl, router}) {
                             <label>Company About</label>
                             <textarea name={"companyAbout"} type="text" className="form-control mb-3"/>
 
-                            {/*<label>Publish Date</label>*/}
-                            {/*<input name={"publishDate"} type="text" className="form-control mb-3"  />*/}
+                            <div className="d-flex flex-row align-items-center">
+                                <label>Hi-Tech</label>
+                                <input name={"hiTech"} type="checkbox" className="form-control ml-3" checked={hiTech} onChange={(e) => setHiTech(e.target.checked)} style={{width: '12px'}} defaultChecked={hiTech} />
+                            </div>
 
 
                             <button className="btn btn-dark btn-sm btn-block" type={"submit"}>

@@ -7,9 +7,10 @@ import { Requests } from '../CustomHooks/Requests';
 import { NotifyComponent } from './Notify';
 import { useState } from 'react';
 import ClipLoader from "react-spinners/ClipLoader";
-import Link from 'next/link'
+import Link from 'next/link';
+import 'moment/locale/he';
 
-export default function ProjectItem({ project, serverUrl, user }) {
+export default function ProjectItem({ project, serverUrl, user, router }) {
 
     const [position, setPosition] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -31,12 +32,17 @@ export default function ProjectItem({ project, serverUrl, user }) {
 
     async function handleSubmit() {
         try {
+            if (!user) {
+                router.push('/sign-in');
+                return;
+            }
             const {firstname, lastname, email, coverLetter, linkedinProfileUrl, website} = user;
-            const data = { firstname: firstname, lastname: lastname, email: email, coverLetter: coverLetter, linkedinProfile: linkedinProfileUrl, website: website };
+            const data = { firstname, lastname, email, coverLetter, linkedinProfile: linkedinProfileUrl, website };
             await Requests("post", serverUrl + "/position/" + project.id + "/application", {}, data);
             NotifyComponent("success", "You submitted this project successfully! Please wait for a while we are submitting.");
         } catch (error) {
             NotifyComponent("failure", error.message)
+            if (error.message.includes("subscribe")) router.push('/about#subscription')
         }
 
     }
@@ -184,7 +190,7 @@ export default function ProjectItem({ project, serverUrl, user }) {
                 }
 
                 .main-job-content {
-                    width: 50%;
+                    width: 70%;
                 }
 
                 .main-job-content .job-details {
@@ -405,7 +411,7 @@ export default function ProjectItem({ project, serverUrl, user }) {
                 <div className="common-buttons d-flex justify-content-between">
                     <div className='functional-buttons d-flex'>
                         <a><ShareOutlinedIcon fontSize='small' color='disabled' /></a>
-                        <a><FavoriteBorderOutlinedIcon fontSize='small' color='disabled' /></a>
+                        {/* <a><FavoriteBorderOutlinedIcon fontSize='small' color='disabled' /></a> */}
                     </div>
                     <div className='submit-buttons'>
                         <a href={project.jobExternalUrl} target='__blank' className='d-flex flex-row align-items-center justify-content-center'>
@@ -446,7 +452,7 @@ export default function ProjectItem({ project, serverUrl, user }) {
                             </div>
                         </div>
                         <div className='d-flex flex-row justify-content-between align-items-center'>
-                            <p className='from-now'>{moment(project.createdAt).fromNow()}</p>
+                            <p className='from-now'>{moment(project.createdAt).locale('he').fromNow()}</p>
                             {
                                 project.companyImageUrl
                                     ?
@@ -476,7 +482,7 @@ export default function ProjectItem({ project, serverUrl, user }) {
                     <h2>תיאור משרה</h2>
                 </div>
                 <div className="job-description-row job-description-content">
-                    {position.jobDescription}
+                    <div dangerouslySetInnerHTML={{__html: position.jobDescription}}></div>
                     <div className="job-description-title">
                         <Image src={"/assets/image/apple 2.png"} width={36} height={36} />
                         <h2>אודות</h2>

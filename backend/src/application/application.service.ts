@@ -20,15 +20,10 @@ export class ApplicationService {
 
   async createApplication(user, positionId, createPositionApplicationDto: CreatePositionApplicationDto, file: Express.Multer.File) {
 
-
-
-    // if (!file) throw new ConflictException("CV field is empty")
-    // else if ( !`application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf, image/*,
-    // application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.slideshow
-    // `.includes(file.mimetype) ) throw new ConflictException("Invalid file type")
-    // else if (file.size > 10000000) throw new ConflictException("Invalid file size, maximum allowed is 10MB")
-
-    // const fileName = uniqid()+"-"+file.originalname.trim()
+    if (new Date(user.subscribeEndDate).getTime() < new Date().getTime())
+      throw new ConflictException('Your subscription has expired. Please renew your subscription to continue.');
+    if (user.subscribeType === 'option1')
+      throw new ConflictException('You can\'t use this function. Please upgrade your subscription to continue.');
 
     let fileName;
 

@@ -56,16 +56,22 @@ export function Header({ user, clientUrl }) {
             `}
             </style>
             <div className="new-header">
-                <a href={clientUrl} style={{ backgroundColor: "transparent" }} className="logo">
-                    <Image src="/assets/image/logo.png" width="17" height="37" alt="Logo" />
-                    <p className="logo-title">AUTOFLY</p>
-                </a>
+                <Link href={"/"}>
+                    <a style={{ backgroundColor: "transparent" }} className="logo">
+                        <Image src="/assets/image/logo.png" width="17" height="37" alt="Logo" />
+                        <p className="logo-title">AUTOFLY</p>
+                    </a>
+                </Link>
                 <div className="d-flex flex-row justify-content-center align-items-center" style={{ gap: '60px' }}>
                     <div className="all-jobs-btn d-flex flex-column justify-content-center align-items-center">
-                        <div>
-                            <Image src="/assets/image/all-jobs.png" width="50" height="45" alt="all jobs" />
-                        </div>
-                        <Link href={"/jobs"}><a>כל המשרות</a></Link>
+                        <Link href={"/jobs"}>
+                            <a>
+                                <div>
+                                    <Image src="/assets/image/all-jobs.png" width="50" height="45" alt="all jobs" />
+                                </div>
+                                כל המשרות
+                            </a>
+                        </Link>
                     </div>
                     <button className="nav-menu" onClick={e => { document.querySelector("#kt_aside").classList.toggle("aside-on") }}>
                         <svg width="47px" height="47px" viewBox="0 0 20.00 20.00" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#ffffff" strokeWidth="2">

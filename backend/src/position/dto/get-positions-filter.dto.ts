@@ -15,4 +15,5 @@ export class GetPositionsFilterDto {
   @IsNumber()
   @Type(()=>Number)
   page: number;
+  hiTech: boolean;
 }

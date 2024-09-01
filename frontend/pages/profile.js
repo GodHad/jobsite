@@ -50,7 +50,7 @@ function Profile({ props, loading, user, serverUrl, router, pageTitle, userCheck
             const data = await Requests('put-form-data', url, {}, formData)
             userChecks()
 
-            NotifyComponent('success', "Success")
+            NotifyComponent('success', "You updated your profile successfully.")
 
         } catch (error) {
             NotifyComponent('failure', error.message)

@@ -56,6 +56,14 @@ export const updateDate = (value) => {
         })
     }
 }
+export const updateHiTech = (value) => {
+    return (dispatch) => {
+        dispatch({
+            type: "SET_HI_TECH",
+            payload: value
+        })
+    }
+}
 export const reset = (res) => {
     return (dispatch) => {
         dispatch({

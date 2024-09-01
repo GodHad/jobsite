@@ -39,10 +39,10 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
     const { query } = router;
 
     const state = useSelector((state) => state);
-    const { title, location, industry, pageSize, page, employAmount, date } = state.filters;
+    const { title, location, industry, pageSize, page, employAmount, date, hiTech } = state.filters;
     const dispatch = useDispatch()
     const {
-        updateIndustry, updateLocation, updateTitle, reset, updatePageSize, updatePage, updateEmployAmount, updateDate
+        updateIndustry, updateLocation, updateTitle, reset, updatePageSize, updatePage, updateEmployAmount, updateDate, updateHiTech
     } = bindActionCreators(actionCreators, dispatch)
 
 
@@ -70,10 +70,9 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
     async function getJobs({ url = null, page = jobs._metadata.page, page_size = jobs._metadata.page_size }) {
         try {
             setLoading(true);
-            const { innerWidth: width, innerHeight: height } = window;
-            const { title, industry, location, employAmount, date } = state.filters;
+            const { title, industry, location, employAmount, date, hiTech } = state.filters;
 
-            const encodedFilters = JSON.parse(JSON.stringify({ title, industry, location, employAmount, date }));
+            const encodedFilters = JSON.parse(JSON.stringify({ title, industry, location, employAmount, date, hiTech }));
             for (const [key, value] of Object.entries(encodedFilters)) {
                 encodedFilters[key] = encodeURIComponent(value)
             }
@@ -84,7 +83,7 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
             } else if (url) {
                 endpoint = url && url + `&page=${page}&page_size=${page_size}`;
             } else {
-                endpoint = `${serverUrl}/position?jobTitle=${encodedFilters.title}&jobLocation=${encodedFilters.location}&companyIndustry=${encodedFilters.industry}&companySize=${encodedFilters.employAmount}&publishDate=${encodedFilters.date}&page=${page}&page_size=${page_size}`;
+                endpoint = `${serverUrl}/position?jobTitle=${encodedFilters.title}&jobLocation=${encodedFilters.location}&companyIndustry=${encodedFilters.industry}&companySize=${encodedFilters.employAmount}&publishDate=${encodedFilters.date}&hiTech=${hiTech}&page=${page}&page_size=${page_size}`;
             }
 
             const {
@@ -110,6 +109,19 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
         }
     }
 
+    async function updateHiTechView() {
+        try {
+            if (user) {
+                await Requests('post', serverUrl + '/user/update-hitech-view', {}, { hiTech })
+            } else {
+                localStorage.setItem('hi-tech-view', hiTech)
+            }
+            NotifyComponent('success', 'Success to save');
+        } catch (error) {
+            NotifyComponent('failure', error.message);
+        }
+    }
+
     useEffect(() => {
 
         const string = Object.entries(query).reduce((acc, [key, value]) => {
@@ -129,6 +141,11 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    useEffect(() => {
+        if (user) updateHiTech(user.hiTechView);
+        else if (localStorage.getItem('hi-tech-view')) updateHiTech(localStorage.getItem('hi-tech-view') === "true")
+    }, [user])
+
     const debouncedTitle = useDebounce(title, 500);
     const debouncedLocation = useDebounce(location, 500);
     const debouncedPage = useDebounce(page, 500);
@@ -137,7 +154,7 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
 
     useEffect(() => {
         getJobs({ page })
-    }, [debouncedLocation, debouncedPage, debouncedIndustry, debouncedTitle, debouncedEmployAmount, date])
+    }, [debouncedLocation, debouncedPage, debouncedIndustry, debouncedTitle, debouncedEmployAmount, date, hiTech])
 
     if (!jobs.data) return <Layout loading={true} />
 
@@ -149,7 +166,7 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
             <Layout loading={false} activeItem={"jobsIndex"} breadcrumbs={["Jobs", "Index"]} user={user}
                 router={router} clientUrl={clientUrl} serverUrl={serverUrl}>
                 <CommonContent />
-                <Filter title={title} location={location} employAmount={employAmount} date={date} updateLocation={updateLocation} companyIndustries={companyIndustries} updateIndustry={updateIndustry} updateTitle={updateTitle} updateEmployAmount={updateEmployAmount} updateDate={updateDate} />
+                <Filter title={title} location={location} employAmount={employAmount} date={date} hiTech={hiTech} updateLocation={updateLocation} companyIndustries={companyIndustries} updateIndustry={updateIndustry} updateTitle={updateTitle} updateEmployAmount={updateEmployAmount} updateDate={updateDate} updateHiTech={updateHiTech} updateHiTechView={updateHiTechView} />
                 {loading
                     ?
                     <div className="loader-wrapper">
@@ -162,7 +179,7 @@ function JobIndex({ props, user, serverUrl, clientUrl, router, pageTitle }) {
                                 <p className={"mt-4 text-center"}>No jobs found for this search criteria. <a href={"#"}
                                     onClick={reset}>Reset
                                     Filters</a>
-                                </p> : <MatchedProjects projects={jobs.data} serverUrl={serverUrl} user={user} />
+                                </p> : <MatchedProjects projects={jobs.data} serverUrl={serverUrl} user={user} router={router} />
                         }
                         <PaginatedItems itemsPerPage={pageSize} totalCount={jobs._metadata.total_count} currentPage={page} updatePage={updatePage} />
                     </>
@@ -215,7 +232,7 @@ const EmployeeSlider = ({ employAmount, updateEmployAmount }) => {
     const [isDragging, setIsDragging] = useState(false)
 
     const handleChange = (event) => {
-        const tempSliderValuIe = event.target.value;
+        const tempSliderValue = event.target.value;
         updateEmployAmount(tempSliderValue);
         setValue(tempSliderValue)
         const progress = (tempSliderValue / event.target.max) * 100;
@@ -250,7 +267,7 @@ const EmployeeSlider = ({ employAmount, updateEmployAmount }) => {
             setNewValue(Math.floor(5 - newValue))
         }
     };
-    
+
     const debouncedValue = useDebounce(newValue, 500);
 
     useEffect(() => {
@@ -258,7 +275,7 @@ const EmployeeSlider = ({ employAmount, updateEmployAmount }) => {
         updateRightPosition(debouncedValue, window.innerWidth);
         updateEmployAmount(debouncedValue);
     }, [debouncedValue])
-    
+
     useEffect(() => {
         const handleResize = () => {
             updateRightPosition(value, window.innerWidth);
@@ -425,7 +442,7 @@ const EmployeeSlider = ({ employAmount, updateEmployAmount }) => {
     );
 };
 
-const HiTechSwitch = () => (
+const HiTechSwitch = ({ hiTech, updateHiTech }) => (
     <div className="d-flex flex-row align-items-center">
         <style jsx>
             {`
@@ -507,7 +524,7 @@ const HiTechSwitch = () => (
         `}
         </style>
         <label className="switch">
-            <input type="checkbox" />
+            <input type="checkbox" checked={hiTech} onChange={(e) => { updateHiTech(e.target.checked); }} />
             <span className="slider round"></span>
         </label>
         <label style={{ marginLeft: '23px' }}>הייטק בלבד</label>
@@ -586,7 +603,7 @@ const CustomDateInput = React.forwardRef(({ value, onClick, handleClear }, ref) 
             type="text"
             value={value}
             readOnly
-            placeholder="Select a date"
+            placeholder="בחר תאריך"
             ref={ref} // Forward the ref to the input element
         />
         <FaCalendarAlt className="calendar-icon" />
@@ -596,7 +613,7 @@ const CustomDateInput = React.forwardRef(({ value, onClick, handleClear }, ref) 
         <style jsx>{`
             .clear-button {
                 position: absolute;
-                right: 0;
+                left: 35px;
                 font-size: 16px;
                 background: transparent;
                 border: none;
@@ -605,7 +622,7 @@ const CustomDateInput = React.forwardRef(({ value, onClick, handleClear }, ref) 
     </div>
 ));
 
-const DateInput = ({date, updateDate}) => {
+const DateInput = ({ date, updateDate }) => {
     const [startDate, setStartDate] = useState(date ? parseISO(date) : '');
 
     const formatDate = (date) => {
@@ -638,7 +655,7 @@ const DateInput = ({date, updateDate}) => {
                 }
             `}</style>
             <label>:פורסם ב</label>
-            <DatePicker selected={startDate} dateFormat={"dd/MM/yyyy"} onChange={(date) => {setStartDate(date); updateDate(moment(date).format('YYYY-MM-DD'))}} customInput={<CustomDateInput value={formatDate(startDate)} handleClear={handleClear} />} />
+            <DatePicker selected={startDate} dateFormat={"dd/MM/yyyy"} onChange={(date) => { setStartDate(date); updateDate(moment(date).format('YYYY-MM-DD')) }} customInput={<CustomDateInput value={formatDate(startDate)} handleClear={handleClear} />} />
         </div>
     )
 }
@@ -689,7 +706,7 @@ const BranchSelector = ({ id, companyIndustries, updateIndustry }) => {
     )
 }
 
-function Filter({ title, location, employAmount, updateTitle, updateLocation, date, companyIndustries, updateIndustry, updateEmployAmount, updateDate }) {
+function Filter({ title, location, employAmount, date, hiTech, companyIndustries, updateTitle, updateLocation, updateIndustry, updateEmployAmount, updateDate, updateHiTech, updateHiTechView }) {
     const handleLocationChange = (e) => {
         updateLocation(e);
     }
@@ -757,11 +774,17 @@ function Filter({ title, location, employAmount, updateTitle, updateLocation, da
 
                 .btn-custom {
                     margin-top: 13px;
-                    background-color: rgb(189, 189, 189);
-                    border: 1px solid rgba(189, 189, 189, .8);
                     border-radius: 4px;
                     width: 100%;
                     height: 43px;
+                    color: white;
+                    background-color: #FF6C6C;
+                    border: none;
+                }
+                
+                .btn-custom:disabled {
+                    background-color: rgb(189, 189, 189);
+                    border: 1px solid rgba(189, 189, 189, .8);
                 }
                 
                 .number-of-employees h4 {
@@ -810,9 +833,9 @@ function Filter({ title, location, employAmount, updateTitle, updateLocation, da
                 <div className="hi-tech-employee">
                     <div className="hi-tech-filter">
                         <div className="hi-tech-filter-switch d-flex flex-row align-items-center">
-                            <HiTechSwitch />
+                            <HiTechSwitch hiTech={hiTech} updateHiTech={updateHiTech} />
                         </div>
-                        <button className="btn-custom"></button>
+                        <button className="btn-custom" onClick={updateHiTechView}>Save</button>
                     </div>
                     <div className="number-of-employees">
                         <h4>מספר עובדים בחברה</h4>
@@ -847,11 +870,11 @@ function Filter({ title, location, employAmount, updateTitle, updateLocation, da
     )
 }
 
-function MatchedProjects({ projects, serverUrl, user }) {
+function MatchedProjects({ projects, serverUrl, user, router }) {
     return (
         <div className="matched-projects">
             {projects.map(project => (
-                <ProjectItem key={'project' + project.id} project={project} serverUrl={serverUrl} user={user} />
+                <ProjectItem key={'project' + project.id} project={project} serverUrl={serverUrl} user={user} router={router} />
             ))}
         </div>
     )

@@ -17,6 +17,8 @@ import { AppModule } from './app.module';
 import { Logger } from "@nestjs/common";
 
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { CustomValidationFilter } from './common/filters/custom-validation.filter';
+
 import * as helmet from 'helmet';
 
 
@@ -29,6 +31,8 @@ async function bootstrap() {
   const logger = new Logger('bootstrap');
   const port = process.env.PORT
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useGlobalFilters(new CustomValidationFilter());
 
   app.use(morgan('tiny'));
   app.use(cookieParser());

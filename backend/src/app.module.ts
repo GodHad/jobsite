@@ -10,11 +10,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { typeOrmConfig } from "../config/typeorm.config";
 import { ConfigModule } from "@nestjs/config";
 import { SavedPositionModule } from './saved-position/saved-position.module';
+import { TrialModule } from './trial/trial.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
     ConfigModule.forRoot({isGlobal: true}),
-    PositionModule, AuthModule, UserModule, ApplicationModule, SavedPositionModule],
+    PositionModule, AuthModule, UserModule, ApplicationModule, SavedPositionModule, TrialModule],
   controllers: [AppController],
   providers: [AppService],
 })
